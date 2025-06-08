@@ -67,6 +67,24 @@ class HardhatBuildCLI {
       };
 
       const child = spawn(step.command, step.args, options);
+      
+      let stderr = '';
+      let stdout = '';
+      
+      // Capture output when not in verbose mode
+      if (!this.verbose) {
+        if (child.stderr) {
+          child.stderr.on('data', (data) => {
+            stderr += data.toString();
+          });
+        }
+        
+        if (child.stdout) {
+          child.stdout.on('data', (data) => {
+            stdout += data.toString();
+          });
+        }
+      }
 
       child.on('close', (code) => {
         if (code === 0) {
@@ -75,9 +93,15 @@ class HardhatBuildCLI {
         } else {
           if (step.optional) {
             this.log(`⚠️  ${step.name} failed (optional step, continuing...)`);
+            if (!this.verbose && stderr) {
+              console.error(stderr.trim());
+            }
             resolve(true);
           } else {
             this.log(`❌ ${step.name} failed with exit code ${code}`);
+            if (!this.verbose && stderr) {
+              console.error(stderr.trim());
+            }
             resolve(false);
           }
         }
