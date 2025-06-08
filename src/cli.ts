@@ -292,8 +292,6 @@ HARDHAT INTEGRATION:
     npx hardhat build                    # Complete pipeline
     npx hardhat build --interfaces      # Interface-only builds
     npx hardhat build --interfaces --force  # Force interface regeneration
-    npx hardhat build-interface --all   # Legacy interface command
-    npx hardhat build-interface --all --force  # Force all interface regeneration
 
 OUTPUTS:
   • dist/          TypeScript compiled files

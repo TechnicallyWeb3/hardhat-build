@@ -15,103 +15,52 @@ A powerful Hardhat plugin that automatically generates Solidity interface files 
 ✅ **Batch Processing** - Build all contracts at once  
 ✅ **Hardhat Integration** - Built-in Hardhat tasks for seamless workflow  
 
-## Installation
+## Installation & Setup
 
-Install the plugin as a dependency:
+### Hardhat Project Integration
 
 ```bash
-npm install --save-dev hardhat-build-interface
+# Install as a dev dependency
+npm install --save-dev hardhat-build
+
+# Add to your hardhat.config.js or hardhat.config.ts
+require('hardhat-build');
+// or ES6: import 'hardhat-build';
 ```
 
-Import the plugin in your `hardhat.config.js` or `hardhat.config.ts`:
-
-```javascript
-require("hardhat-build-interface");
-```
-
-Or with ES6 imports:
-
-```typescript
-import "hardhat-build-interface";
-```
+**No additional setup required!** Hardhat projects include TypeScript and ts-node dependencies.
 
 ## Quick Start
 
-### 1. Add Interface Directives to Your Contract
+### Hardhat Integration (Recommended)
 
-```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
+```bash
+# Add interface directive to your contract
 /// !interface build ../interfaces/IMyContract.sol
-/// !interface copyright "Copyright (c) 2024 MyCompany. All rights reserved."
 
-/// @title My Contract
-/// @notice A sample contract demonstrating the interface builder
-contract MyContract {
-    /// @notice The contract owner
-    address public owner;
-    
-    /// @notice Emitted when ownership is transferred
-    /// @param previousOwner The previous owner
-    /// @param newOwner The new owner
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-    
-    /**
-     * @notice Transfer ownership to a new address
-     * @param newOwner The address to transfer ownership to
-     */
-    function transferOwnership(address newOwner) external {
-        address previousOwner = owner;
-        owner = newOwner;
-        emit OwnershipTransferred(previousOwner, newOwner);
-    }
-}
+# Generate interfaces
+npx hardhat build --interfaces
+
+# Force regeneration of all interfaces
+npx hardhat build --interfaces --force
+
+# Complete build pipeline
+npx hardhat build
 ```
 
-### 2. Generate the Interface
+### CLI Usage (Works Everywhere)
 
-#### Single Contract:
 ```bash
-npx hardhat build-interface --contract MyContract.sol
-# or
-npx hardhat build-interface --contract contracts/MyContract.sol
+# Standalone CLI binary (includes Hardhat as dependency)
+npx hardhat-build --force
+
+# TypeScript source access (for development)
+npx ts-node node_modules/hardhat-build/src/buildInterface.ts all
 ```
 
-#### All Contracts:
-```bash
-npx hardhat build-interface --all
-```
+### Performance
 
-### 3. Generated Interface
-
-The plugin will create `interfaces/IMyContract.sol`:
-
-```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
-// Copyright (c) 2024 MyCompany. All rights reserved.
-
-/// @title My Contract
-/// @notice A sample contract demonstrating the interface builder
-interface IMyContract {
-
-    /// @notice Emitted when ownership is transferred
-    /// @param previousOwner The previous owner
-    /// @param newOwner The new owner
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
-    /// @notice The contract owner
-    function owner() external view returns (address);
-    
-    /**
-     * @notice Transfer ownership to a new address
-     * @param newOwner The address to transfer ownership to
-     */
-    function transferOwnership(address newOwner) external;
-}
-```
+The tool automatically skips up-to-date interface files by comparing timestamps between source contracts and generated interfaces. Use `--force` to bypass this optimization and regenerate all files.
 
 ## Interface Directives
 

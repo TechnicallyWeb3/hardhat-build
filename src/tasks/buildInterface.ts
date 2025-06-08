@@ -21,42 +21,8 @@
  */
 
 import { task } from "hardhat/config";
-import { buildInterface, buildAllInterfaces } from "../buildInterface";
+import { buildAllInterfaces } from "../buildInterface";
 import { HardhatBuildCLI } from "../cli";
-import fs from 'fs';
-import path from 'path';
-
-task("build-interface", "Build an interface from a contract")
-  .addOptionalParam("contract", "The contract file path (can be relative to contracts/ or absolute)")
-  .addFlag("all", "Generate interfaces for all contracts with build directives")
-  .addFlag("force", "Force regeneration of interface files even if they are up to date")
-  .setAction(async (taskArgs, hre) => {
-    if (taskArgs.all) {
-      await buildAllInterfaces(taskArgs.force);
-    } else if (taskArgs.contract) {
-      // Handle both relative and absolute paths
-      let contractPath = taskArgs.contract;
-      
-      // If it's not an absolute path and doesn't start with contracts/, prepend contracts/
-      if (!path.isAbsolute(contractPath) && !contractPath.startsWith('contracts/')) {
-        contractPath = path.join("contracts", contractPath);
-      }
-      
-      if (!fs.existsSync(contractPath)) {
-        console.error(`Contract not found: ${contractPath}`);
-        return;
-      }
-      await buildInterface(contractPath, taskArgs.force);
-    } else {
-      console.error("Please specify either --contract <path> or --all");
-      console.error("Examples:");
-      console.error("  npx hardhat build-interface --contract Lock.sol");
-      console.error("  npx hardhat build-interface --contract contracts/Lock.sol");
-      console.error("  npx hardhat build-interface --all");
-      console.error("  npx hardhat build-interface --all --force");
-      return;
-    }
-  });
 
 task("build", "Complete build pipeline: TypeScript, Hardhat compile, and interface generation")
   .addFlag("interfaces", "Only build interfaces (skip TypeScript and Hardhat compilation)")

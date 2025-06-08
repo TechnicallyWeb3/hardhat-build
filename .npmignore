@@ -1,5 +1,5 @@
-# Source files (only dist should be published)
-src/
+# Source files - include src for TypeScript environments
+# src/ (commented out to include TypeScript source)
 contracts/
 interfaces/
 test/

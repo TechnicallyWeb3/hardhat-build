@@ -2,7 +2,9 @@
 
 ## Overview
 
-The Build Interface script is a powerful tool that automatically generates Solidity interface files from contract implementations. It reads special interface directives embedded in contract comments and creates clean, well-documented interfaces with proper natspec documentation.
+**Hardhat Build** is a powerful Hardhat plugin that automatically generates Solidity interface files from contract implementations. It reads special interface directives embedded in contract comments and creates clean, well-documented interfaces with proper natspec documentation.
+
+This plugin is designed for seamless integration with Hardhat projects but also works as a standalone CLI tool for any TypeScript/Node.js environment.
 
 ## Features
 
@@ -15,59 +17,140 @@ The Build Interface script is a powerful tool that automatically generates Solid
 ✅ **Batch Processing** - Build all contracts at once with the "all" command  
 ✅ **Validation** - Ensures build directives are present before processing  
 
-## Installation
+## Installation & Setup
 
-The script is included in the project and requires no additional installation. Ensure you have TypeScript and ts-node available:
+### Hardhat Project Integration (Recommended)
+
+If you're working in a Hardhat project, this is the easiest setup:
 
 ```bash
-npm install -g ts-node
+# Install as a dev dependency
+npm install --save-dev hardhat-build
+
+# Add to your hardhat.config.js or hardhat.config.ts
+require('hardhat-build');
+// or ES6: import 'hardhat-build';
 ```
+
+**No additional setup required!** Hardhat projects typically include TypeScript and ts-node dependencies.
+
+### Standalone Installation
+
+For use outside of Hardhat projects or global installation:
+
+```bash
+# Global installation - works anywhere (includes Hardhat as dependency)
+npm install -g hardhat-build
+
+# Local installation
+npm install hardhat-build
+
+# TypeScript support (if not already available)
+npm install --save-dev typescript ts-node
+```
+
+**Note**: `npx hardhat-build` works even outside Hardhat projects since we include Hardhat as a dependency!
 
 ## Quick Start
 
-1. Add a build directive to your contract:
+### Option 1: Hardhat Integration (Recommended)
+
 ```solidity
-/// !interface build ./interfaces/IMyContract.sol
+/// !interface build ../interfaces/IMyContract.sol
 contract MyContract {
-    // Your contract code
+    function myFunction() external pure returns (uint256);
 }
 ```
 
-2. Run the build command:
 ```bash
+# Complete build pipeline (TypeScript + Hardhat + Interfaces)
+npx hardhat build
+
+# Interface generation only
+npx hardhat build --interfaces
+
+# Force regeneration
+npx hardhat build --interfaces --force
+```
+
+### Option 2: Direct CLI Usage
+
+```bash
+# Using compiled JavaScript (works anywhere)
+npx hardhat-build all
+
+# Using TypeScript source (requires ts-node in your project)
+npx ts-node node_modules/hardhat-build/src/buildInterface.ts all
+
+# Force regeneration
+npx hardhat-build all --force
+```
+
+### Option 3: In-Project Development
+
+If you're working within the plugin's source code:
+
+```bash
+# Development with TypeScript source
 npx ts-node src/buildInterface.ts contracts/MyContract.sol
+
+# Production with compiled version  
+node dist/buildInterface.js contracts/MyContract.sol
 ```
 
 ## Command Line Usage
 
-### Build Single Contract
-```bash
-# Development (TypeScript directly)
-npx ts-node src/buildInterface.ts <contract-path>
+### Hardhat Task Commands (Recommended)
 
-# Production (compiled JavaScript)
-node dist/buildInterface.js <contract-path>
+```bash
+# Complete build pipeline (TypeScript + Hardhat + Interfaces)
+npx hardhat build
+
+# Interface generation only
+npx hardhat build --interfaces
+
+# Force regeneration of all interfaces
+npx hardhat build --interfaces --force
 ```
 
-**Example:**
+### CLI Binary Commands (Works Everywhere)
+
 ```bash
-npx ts-node src/buildInterface.ts contracts/examples/ExampleContract.sol
+# Using the CLI binary (includes Hardhat as dependency)
+npx hardhat-build                    # Complete build pipeline
+npx hardhat-build --interfaces-only # Interface generation only
+npx hardhat-build --force           # Force rebuild all
+npx hardhat-build --help            # Show all options
 ```
 
-### Build All Contracts (Batch Processing)
-```bash
-# Development
-npx ts-node src/buildInterface.ts all
+### Direct Script Commands
 
-# Production
-node dist/buildInterface.js all
+For development or when you need TypeScript source access:
+
+```bash
+# Using TypeScript source (requires ts-node in your project)
+npx ts-node node_modules/hardhat-build/src/buildInterface.ts all
+npx ts-node node_modules/hardhat-build/src/buildInterface.ts contracts/MyContract.sol --force
+
+# Using compiled JavaScript
+node node_modules/hardhat-build/dist/buildInterface.js all --force
 ```
 
-This command:
-- Recursively searches the `./contracts` directory
-- Finds all `.sol` files with `/// !interface build` directives
-- Builds interfaces for all discovered contracts
-- Reports success/failure summary
+### Batch Processing
+
+All commands support batch processing with automatic contract discovery:
+
+```bash
+# These commands will:
+# - Recursively search the './contracts' directory  
+# - Find all .sol files with '/// !interface build' directives
+# - Build interfaces for all discovered contracts
+# - Report success/failure summary with file counts
+
+npx hardhat build --interfaces
+npx hardhat-build
+npx ts-node node_modules/hardhat-build/src/buildInterface.ts all
+```
 
 ## Interface Directives
 
@@ -471,55 +554,37 @@ When adding new features to the build interface script:
 
 This build interface tool is part of the project and follows the same license terms.
 
-## Usage
+## Usage Summary
 
-### Command Line Interface
-
-```bash
-# Build single contract interface
-npx ts-node src/buildInterface.ts contracts/MyContract.sol
-
-# Build all contracts with interface directives
-npx ts-node src/buildInterface.ts all
-
-# Force regeneration (skip timestamp checks)
-npx ts-node src/buildInterface.ts all --force
-npx ts-node src/buildInterface.ts contracts/MyContract.sol --force
-
-# Production usage (compiled)
-node dist/buildInterface.js contracts/MyContract.sol
-node dist/buildInterface.js all --force
-```
-
-### Hardhat Integration
+### Primary Usage (Hardhat Integration)
 
 ```bash
-# Build single contract
-npx hardhat build-interface --contract MyContract.sol
-
-# Build all contracts with directives
-npx hardhat build-interface --all
-
-# Force regeneration of all interfaces
-npx hardhat build-interface --all --force
-
-# Complete build pipeline
-npx hardhat build
+# Recommended: Use Hardhat build task for development
 npx hardhat build --interfaces --force
+npx hardhat build
+
+# Alternative: Use CLI binary anywhere (includes Hardhat)
+npx hardhat-build --force
 ```
 
-### Advanced Build Pipeline
+### Development Usage (TypeScript Source)
 
 ```bash
-# Complete build with TypeScript compilation
-npx hardhat-build
+# When you need access to TypeScript source (dev/debugging)
+npx ts-node node_modules/hardhat-build/src/buildInterface.ts all --force
 
-# Interface generation only
-npx hardhat-build --interfaces-only
+# In-project development (if working on the plugin itself)
+npx ts-node src/buildInterface.ts contracts/MyContract.sol --force
+```
 
-# Force regeneration of all files
-npx hardhat-build --force
+### Production Usage (Compiled JavaScript)
+
+```bash
+# Standalone CLI binary (works anywhere - includes Hardhat dependency)
 npx hardhat-build --interfaces-only --force
+
+# Direct compiled script usage
+node node_modules/hardhat-build/dist/buildInterface.js all --force
 ```
 
 ## Performance Optimization

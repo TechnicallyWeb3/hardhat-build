@@ -15,57 +15,70 @@ A powerful Hardhat plugin that automatically generates Solidity interface files 
 ✅ **Batch Processing** - Build all contracts at once  
 ✅ **Hardhat Integration** - Built-in Hardhat tasks for seamless workflow  
 
-## Installation
+## Installation & Setup
 
-Install the plugin as a dependency:
+### Hardhat Project Integration
 
 ```bash
+# Install as a dev dependency
 npm install --save-dev hardhat-build
+
+# Add to your hardhat.config.js or hardhat.config.ts
+require('hardhat-build');
+// or ES6: import 'hardhat-build';
 ```
 
-Import the plugin in your Hardhat configuration:
+**No additional setup required!** Hardhat projects typically include TypeScript and ts-node dependencies.
 
-**JavaScript (`hardhat.config.js`):**
-```javascript
-require("@nomicfoundation/hardhat-toolbox");
-require("hardhat-build");
+### Standalone Installation
 
-/** @type import('hardhat/config').HardhatUserConfig */
-module.exports = {
-  solidity: {
-    version: "0.8.20",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200
-      }
-    }
-  },
-  // Plugin tasks are now available!
-};
+```bash
+# Global installation - works anywhere (includes Hardhat as dependency)
+npm install -g hardhat-build
+
+# TypeScript support (if not already available)
+npm install --save-dev typescript ts-node
 ```
 
-**TypeScript (`hardhat.config.ts`):**
-```typescript
-import { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox";
-import "hardhat-build";
+**Note**: `npx hardhat-build` works even outside Hardhat projects since we include Hardhat as a dependency!
 
-const config: HardhatUserConfig = {
-  solidity: {
-    version: "0.8.20",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200
-      }
-    }
-  },
-  // Plugin tasks are now available!
-};
+## Usage
 
-export default config;
+### Hardhat Integration (Recommended)
+
+```bash
+# Build all contracts with directives
+npx hardhat build --interfaces
+
+# Force regeneration of all interfaces
+npx hardhat build --interfaces --force
+
+# Complete build pipeline
+npx hardhat build
 ```
+
+### CLI Binary Commands (Works Everywhere)
+
+```bash
+# Using the CLI binary (includes Hardhat as dependency)
+npx hardhat-build                    # Complete build pipeline
+npx hardhat-build --interfaces-only # Interface generation only
+npx hardhat-build --force           # Force rebuild all
+```
+
+### TypeScript Source Access
+
+```bash
+# When you need TypeScript source access (development/debugging)
+npx ts-node node_modules/hardhat-build/src/buildInterface.ts all --force
+
+# Direct compiled usage
+node node_modules/hardhat-build/dist/buildInterface.js all --force
+```
+
+### Performance
+
+The tool automatically skips up-to-date interface files by comparing timestamps. Use `--force` to regenerate all files regardless of timestamps.
 
 ## Quick Start
 

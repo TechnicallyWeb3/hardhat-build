@@ -3,6 +3,8 @@
 ## Project Overview
 **Hardhat Build** is a comprehensive TypeScript plugin that extends Hardhat with advanced interface generation capabilities and unified build pipeline automation. This tool represents a significant advancement in Solidity development workflow optimization.
 
+**Package Distribution**: The plugin is distributed with both compiled JavaScript (`dist/`) and TypeScript source code (`src/`) to support both production usage and development/debugging scenarios.
+
 ## Core Architecture
 
 ### 1. Interface Directive System
@@ -228,22 +230,32 @@ The MIT license allows for commercial use, modification, and distribution while 
 
 ## Usage Examples
 
+### Primary Usage (Hardhat Integration)
 ```bash
-# Build single contract interface
-npx ts-node src/buildInterface.ts contracts/MyContract.sol
-
-# Build all contracts with interface directives
-npx ts-node src/buildInterface.ts all
-
-# Force regeneration (skip timestamp checks)
-npx ts-node src/buildInterface.ts all --force
-
-# Hardhat integration
-npx hardhat build-interface --all --force
+# Recommended: Hardhat build task for development
 npx hardhat build --interfaces --force
+npx hardhat build
 
-# Advanced build pipeline
+# Alternative: CLI binary anywhere (includes Hardhat as dependency)
+npx hardhat-build --force
+```
+
+### Development Usage (TypeScript Source)
+```bash
+# When you need TypeScript source access (debugging/development)
+npx ts-node node_modules/hardhat-build/src/buildInterface.ts all --force
+
+# In-project development (plugin development)
+npx ts-node src/buildInterface.ts contracts/MyContract.sol --force
+```
+
+### Production Usage (Compiled)
+```bash
+# Standalone CLI binary (works anywhere - includes Hardhat dependency)
 npx hardhat-build --interfaces-only --force
+
+# Direct compiled script usage
+node node_modules/hardhat-build/dist/buildInterface.js all --force
 ```
 
 ## Performance Features
