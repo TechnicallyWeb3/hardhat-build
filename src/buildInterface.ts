@@ -590,7 +590,9 @@ export class InterfaceGenerator {
         if (event.natspec) {
           output += this.formatNatspec(event.natspec, '    ') + '\n';
         }
-        output += `    event ${event.name}(${event.parameters});\n`;
+        // Apply type replacements to event parameters
+        const processedParameters = this.applyTypeReplacements(event.parameters);
+        output += `    event ${event.name}(${processedParameters});\n`;
       });
       output += '\n';
     }
@@ -602,7 +604,9 @@ export class InterfaceGenerator {
         if (error.natspec) {
           output += this.formatNatspec(error.natspec, '    ') + '\n';
         }
-        output += `    error ${error.name}(${error.parameters});\n`;
+        // Apply type replacements to error parameters
+        const processedParameters = this.applyTypeReplacements(error.parameters);
+        output += `    error ${error.name}(${processedParameters});\n`;
       });
       output += '\n';
     }
@@ -611,7 +615,9 @@ export class InterfaceGenerator {
     const getterFunctions = this.generateGetterFunctions(variables);
     if (getterFunctions.length > 0) {
       getterFunctions.forEach(getter => {
-        output += `${getter}\n`;
+        // Apply type replacements to getter functions
+        const processedGetter = this.applyTypeReplacements(getter);
+        output += `${processedGetter}\n`;
       });
       output += '\n';
     }
@@ -621,17 +627,45 @@ export class InterfaceGenerator {
     includedFunctions.forEach(func => {
       const visibility = 'external'; // All interface functions are external
       const stateMutability = func.stateMutability !== 'nonpayable' ? ` ${func.stateMutability}` : '';
-      const returnType = func.returnType ? ` returns (${func.returnType})` : '';
+      
+      // Apply type replacements to parameters and return type
+      const processedParameters = this.applyTypeReplacements(func.parameters);
+      const processedReturnType = func.returnType ? this.applyTypeReplacements(func.returnType) : '';
+      const returnType = processedReturnType ? ` returns (${processedReturnType})` : '';
       
       if (func.natspec) {
         output += this.formatNatspec(func.natspec, '    ') + '\n';
       }
-      output += `    function ${func.name}(${func.parameters}) ${visibility}${stateMutability}${returnType};\n`;
+      output += `    function ${func.name}(${processedParameters}) ${visibility}${stateMutability}${returnType};\n`;
     });
 
     output += '}\n';
 
     return output;
+  }
+
+  private applyTypeReplacements(text: string): string {
+    if (!text || this.replaceDirectives.size === 0) {
+      return text;
+    }
+
+    let result = text;
+    
+    this.replaceDirectives.forEach((replacement, original) => {
+      // Simple exact match for return types (most common case)
+      if (result === original) {
+        result = replacement;
+        return;
+      }
+      
+      // Clean regex: start with (|,|space, end with space|,|)|[
+      result = result.replace(
+        new RegExp(`([\\(,\\s])${original}([\\s,\\)\\[])`, 'g'),
+        `$1${replacement}$2`
+      );
+    });
+
+    return result;
   }
 
   public writeInterface(): 'generated' | 'skipped' {
@@ -834,6 +868,22 @@ export async function findContractsWithBuildDirectives(directory: string = './co
   return contractFiles;
 }
 
+// Count total interfaces that will be generated (including modules)
+function countTotalInterfaces(contractFiles: string[]): number {
+  let totalInterfaces = contractFiles.length; // Start with build directives count
+  
+  // Add module directives count
+  contractFiles.forEach(contractFile => {
+    const content = fs.readFileSync(contractFile, 'utf8');
+    const moduleMatches = content.match(/\/\/\/ !interface module .+/g);
+    if (moduleMatches) {
+      totalInterfaces += moduleMatches.length;
+    }
+  });
+  
+  return totalInterfaces;
+}
+
 // Build all contracts with interface directives
 export async function buildAllInterfaces(force: boolean = false): Promise<void> {
   console.log('🔍 Searching for contracts with build directives...');
@@ -846,7 +896,9 @@ export async function buildAllInterfaces(force: boolean = false): Promise<void> 
     return;
   }
   
-  console.log(`📄 Found ${contractFiles.length} contract(s) with build directives:`);
+  const totalInterfaces = countTotalInterfaces(contractFiles);
+  
+  console.log(`📄 Found ${contractFiles.length} contract(s) with build directives (${totalInterfaces} total interfaces including modules):`);
   contractFiles.forEach(file => console.log(`   - ${file}`));
   console.log();
   
@@ -879,6 +931,7 @@ export async function buildAllInterfaces(force: boolean = false): Promise<void> 
   if (errorCount > 0) {
     console.log(`❌ Failed to build ${errorCount} interface(s)`);
   }
+  console.log(`📊 Total: ${successCount + skippedCount + errorCount} of ${totalInterfaces} interface(s) processed`);
 }
 
 // Main execution

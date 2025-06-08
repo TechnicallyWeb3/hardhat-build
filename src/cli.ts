@@ -364,14 +364,14 @@ INTERFACE DIRECTIVES:
 
 MODULE FLAGS:
   --remove <contract>              Remove inheritance from specified contract
-  --replace <old> with <new>       Replace inheritance contract (e.g., AccessControl with IAccessControl)
+  --replace <old> with <new>       Replace contract types in inheritance AND function signatures
   --is <interfaces>                Add comma-separated interfaces to inheritance
 
-MODULE LIMITATIONS:
-  • --replace only affects inheritance, not function parameters/return types
-  • Functions returning replaced contracts will keep original type in interface
-  • Example: "returns (Ownable)" stays as "Ownable" even with "--replace Ownable with IOwnable"
-  • Workaround: Use concrete contracts in your code, interfaces for inheritance only
+MODULE ENHANCEMENTS:
+  • --replace now works on function parameters, return types, events, and errors
+  • Smart type-context matching avoids replacing variable/function names
+  • Supports arrays (Ownable[]), mappings (mapping(address => Ownable)), complex types
+  • Example: "function test(Ownable owner) returns (Ownable[])" becomes "function test(IOwnable owner) returns (IOwnable[])"
 
 EXAMPLES:
   npx hardhat-build                           # Run complete build pipeline
