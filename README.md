@@ -118,7 +118,7 @@ npx hardhat build --interfaces --force
 ```bash
 # Using the CLI binary (includes Hardhat as dependency)
 npx hardhat-build                    # Complete build pipeline
-npx hardhat-build --interfaces-only # Interface generation only
+npx hardhat-build --interfaces      # Interface generation only
 npx hardhat-build --force           # Force rebuild all
 npx hardhat-build --help            # Show all options
 ```
@@ -581,7 +581,7 @@ npx ts-node src/buildInterface.ts contracts/MyContract.sol --force
 
 ```bash
 # Standalone CLI binary (works anywhere - includes Hardhat dependency)
-npx hardhat-build --interfaces-only --force
+npx hardhat-build --interfaces --force
 
 # Direct compiled script usage
 node node_modules/hardhat-build/dist/buildInterface.js all --force

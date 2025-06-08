@@ -252,7 +252,7 @@ npx ts-node src/buildInterface.ts contracts/MyContract.sol --force
 ### Production Usage (Compiled)
 ```bash
 # Standalone CLI binary (works anywhere - includes Hardhat dependency)
-npx hardhat-build --interfaces-only --force
+npx hardhat-build --interfaces --force
 
 # Direct compiled script usage
 node node_modules/hardhat-build/dist/buildInterface.js all --force

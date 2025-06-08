@@ -257,7 +257,7 @@ USAGE:
 OPTIONS:
   --verbose, -v        Show detailed output with command execution
   --help, -h          Show this help message
-  --interfaces-only   Run interface generation only (skip compilation)
+  --interfaces        Run interface generation only (skip compilation)
   --force             Force regeneration of interface files even if they are up to date
 
 WHAT IT DOES:
@@ -280,9 +280,9 @@ INTERFACE DIRECTIVES:
 EXAMPLES:
   npx hardhat-build                    # Run complete build pipeline
   npx hardhat-build --verbose         # Run with detailed output
-  npx hardhat-build --interfaces-only # Generate interfaces only
+  npx hardhat-build --interfaces      # Generate interfaces only
   npx hardhat-build --force           # Force regeneration of all files
-  npx hardhat-build --interfaces-only --force  # Force interface regeneration only
+  npx hardhat-build --interfaces --force       # Force interface regeneration only
 
 HARDHAT INTEGRATION:
   Add to hardhat.config.js:
@@ -303,8 +303,8 @@ For more information: https://github.com/TechnicallyWeb3/hardhat-build
     return;
   }
 
-  // Special case: if being called from within Hardhat as an interfaces-only command
-  if (args.includes('--interfaces-only')) {
+  // Special case: if being called for interfaces only
+  if (args.includes('--interfaces')) {
     const force = args.includes('--force');
     await HardhatBuildCLI.executeInterfaces(force);
     return;

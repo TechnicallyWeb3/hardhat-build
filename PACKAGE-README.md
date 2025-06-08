@@ -62,7 +62,7 @@ npx hardhat build
 ```bash
 # Using the CLI binary (includes Hardhat as dependency)
 npx hardhat-build                    # Complete build pipeline
-npx hardhat-build --interfaces-only # Interface generation only
+npx hardhat-build --interfaces      # Interface generation only
 npx hardhat-build --force           # Force rebuild all
 ```
 
