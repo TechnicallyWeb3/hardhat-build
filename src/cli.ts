@@ -253,15 +253,67 @@ class HardhatBuildCLI {
     }
   }
 
-  public static async executeInterfaces(force: boolean = false): Promise<void> {
-    console.log('🔍 Building all interfaces...');
-    
-    try {
-      await buildAllInterfaces(force);
-      console.log('✅ Interface generation completed successfully');
-    } catch (error) {
-      console.error('❌ Interface generation failed:', error);
-      process.exit(1);
+  public static async executeInterfaces(force: boolean = false, files?: string[]): Promise<void> {
+    if (files && files.length > 0) {
+      // Filter out flags from files list
+      const contractFiles = files.filter(file => !file.startsWith('--'));
+      
+      if (contractFiles.length === 0) {
+        console.log('🔍 Building all interfaces...');
+        
+        try {
+          await buildAllInterfaces(force);
+          console.log('✅ Interface generation completed successfully');
+        } catch (error) {
+          console.error('❌ Interface generation failed:', error);
+          process.exit(1);
+        }
+        return;
+      }
+      
+      console.log(`🔍 Building interfaces for ${contractFiles.length} specified file(s)...`);
+      
+      let successCount = 0;
+      let errorCount = 0;
+      let skippedCount = 0;
+      
+      for (const file of contractFiles) {
+        try {
+          console.log(`🔨 Building interface for: ${file}`);
+          const { InterfaceGenerator } = await import('./buildInterface');
+          
+          const generator = new InterfaceGenerator(file, force);
+          const result = generator.writeInterface();
+          
+          if (result === 'generated') {
+            successCount++;
+          } else if (result === 'skipped') {
+            skippedCount++;
+          }
+        } catch (error) {
+          console.error(`❌ Error building interface for ${file}:`, error);
+          errorCount++;
+        }
+      }
+      
+      console.log();
+      console.log(`✅ Successfully built ${successCount} interface(s)`);
+      if (skippedCount > 0) {
+        console.log(`⏭️  Skipped ${skippedCount} up-to-date interface(s)`);
+      }
+      if (errorCount > 0) {
+        console.log(`❌ Failed to build ${errorCount} interface(s)`);
+      }
+    } else {
+      console.log('🔍 Building all interfaces...');
+      
+      try {
+        await buildAllInterfaces(force);
+        console.log('✅ Interface generation completed successfully');
+      } catch (error) {
+        console.error('❌ Interface generation failed:', error);
+        process.exit(1);
+      }
     }
   }
 }
@@ -276,7 +328,7 @@ async function main(): Promise<void> {
    Advanced interface generation and unified build automation
 
 USAGE:
-  npx hardhat-build [options]
+  npx hardhat-build [options] [files...]
 
 OPTIONS:
   --verbose, -v        Show detailed output with command execution
@@ -302,20 +354,24 @@ INTERFACE DIRECTIVES:
   /// !interface getter stakingBalance
 
 EXAMPLES:
-  npx hardhat-build                    # Run complete build pipeline
-  npx hardhat-build --verbose         # Run with detailed output
-  npx hardhat-build --interfaces      # Generate interfaces only
-  npx hardhat-build --force           # Force regeneration of all files
-  npx hardhat-build --interfaces --force       # Force interface regeneration only
+  npx hardhat-build                           # Run complete build pipeline
+  npx hardhat-build --verbose                # Run with detailed output
+  npx hardhat-build --interfaces             # Generate all interfaces only
+  npx hardhat-build --interfaces contracts/DataPointStorage.sol  # Generate specific interface
+  npx hardhat-build --interfaces contracts/Storage.sol contracts/Registry.sol  # Multiple files
+  npx hardhat-build --force                  # Force regeneration of all files
+  npx hardhat-build --interfaces --force     # Force interface regeneration only
 
 HARDHAT INTEGRATION:
   Add to hardhat.config.js:
     require('hardhat-build');
   
   Then use:
-    npx hardhat build                    # Complete pipeline
-    npx hardhat build --interfaces      # Interface-only builds
-    npx hardhat build --interfaces --force  # Force interface regeneration
+    npx hardhat build                               # Complete pipeline
+    npx hardhat build --interfaces                 # All interface-only builds
+    npx hardhat build --interfaces contracts/Storage.sol  # Specific interface builds
+    npx hardhat build --interfaces contracts/A.sol contracts/B.sol  # Multiple files
+    npx hardhat build --interfaces --force         # Force interface regeneration
 
 OUTPUTS:
   • dist/          TypeScript compiled files
@@ -330,7 +386,8 @@ For more information: https://github.com/TechnicallyWeb3/hardhat-build
   // Special case: if being called for interfaces only
   if (args.includes('--interfaces')) {
     const force = args.includes('--force');
-    await HardhatBuildCLI.executeInterfaces(force);
+    const files = args.slice(args.indexOf('--interfaces') + 1);
+    await HardhatBuildCLI.executeInterfaces(force, files);
     return;
   }
 

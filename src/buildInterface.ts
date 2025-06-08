@@ -72,7 +72,7 @@ interface ParsedContract {
   inheritance: string;
 }
 
-class InterfaceGenerator {
+export class InterfaceGenerator {
   private content: string;
   private lines: string[];
   private directives: Map<number, InterfaceDirective[]> = new Map();
