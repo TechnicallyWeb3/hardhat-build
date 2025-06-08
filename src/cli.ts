@@ -175,9 +175,28 @@ class HardhatBuildCLI {
     
     console.log('🚀 Starting Hardhat Build Pipeline...\n');
 
+    // Step 1: Interface generation - FIRST so both TS and Solidity can use interfaces
+    let success = true;
+    
+    try {
+      this.log('Interface Generation...');
+      await buildAllInterfaces(this.force);
+      this.log('✅ Interface Generation completed successfully');
+      console.log(); // Add spacing
+    } catch (error) {
+      this.log(`❌ Interface Generation failed: ${error}`);
+      success = false;
+    }
+
+    if (!success) {
+      console.log('❌ Build Pipeline Failed!');
+      console.log('💥 Interface generation failed - stopping build\n');
+      process.exit(1);
+    }
+
     const steps: BuildStep[] = [];
 
-    // Step 1: TypeScript compilation (if applicable)
+    // Step 2: TypeScript compilation (can now use generated interfaces)
     if (this.hasTypeScript() && this.hasTsconfigBuild()) {
       const packageManager = this.detectPackageManager();
       const tscCommand = packageManager === 'npm' ? 'npx' : packageManager;
@@ -195,7 +214,7 @@ class HardhatBuildCLI {
       });
     }
 
-    // Step 2: Hardhat compilation (generate artifacts)
+    // Step 3: Hardhat compilation (can now import interfaces)
     const hardhatCommand = this.getHardhatCommand();
     const hardhatBaseArgs = this.getHardhatArgs();
     
@@ -206,11 +225,7 @@ class HardhatBuildCLI {
       optional: false
     });
 
-    // Step 3: Interface generation - call directly instead of spawning
-    // We'll handle this separately after the other steps
-
-    // Execute all steps
-    let success = true;
+    // Execute remaining steps in order
     for (const step of steps) {
       const result = await this.runCommand(step);
       if (!result) {
@@ -218,19 +233,6 @@ class HardhatBuildCLI {
         break;
       }
       console.log(); // Add spacing between steps
-    }
-
-    // Handle interface generation directly
-    if (success) {
-      try {
-        this.log('Interface Generation...');
-        await buildAllInterfaces(this.force);
-        this.log('✅ Interface Generation completed successfully');
-        console.log(); // Add spacing
-      } catch (error) {
-        this.log(`❌ Interface Generation failed: ${error}`);
-        success = false;
-      }
     }
 
     // Summary
@@ -241,11 +243,11 @@ class HardhatBuildCLI {
       console.log(`✅ All steps completed successfully in ${duration}s\n`);
       
       console.log('📁 Generated outputs:');
+      console.log('   • Interface files in interfaces/');
       if (this.hasTypeScript()) {
         console.log('   • TypeScript compiled to dist/');
       }
       console.log('   • Contract artifacts in artifacts/');
-      console.log('   • Interface files in interfaces/');
     } else {
       console.log('❌ Build Pipeline Failed!');
       console.log(`💥 Build failed after ${duration}s\n`);
@@ -337,10 +339,12 @@ OPTIONS:
   --force             Force regeneration of interface files even if they are up to date
 
 WHAT IT DOES:
-  1. 📦 Compiles TypeScript (if tsconfig.build.json exists)
-  2. 🔨 Runs 'hardhat compile' to generate contract artifacts
-  3. 🔧 Builds all interfaces with /// !interface directives
+  1. 🔧 Builds all interfaces with /// !interface directives (FIRST)
+  2. 📦 Compiles TypeScript (can now import generated interfaces)
+  3. 🔨 Runs 'hardhat compile' to generate contract artifacts
   4. 📊 Reports build status and generated outputs
+
+This ensures interfaces are available when both TypeScript and Solidity import them.
 
 INTERFACE DIRECTIVES:
   Add these comments to your contracts to control interface generation:

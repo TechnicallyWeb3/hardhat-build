@@ -23,7 +23,7 @@
 pragma solidity ^0.8.20;
 
 import "./interfaces/ESPTypes.sol";
-/// !interface import "./interfaces/ESPTypes.sol"
+/// !interface import "./ESPTypes.sol"
 
 /// @title Data Point Storage Contract
 /// @notice Provides core storage functionality for data points
@@ -33,6 +33,7 @@ contract DataPointStorage {
 
     mapping(bytes32 => bytes) private dataPointData;
     uint8 public immutable VERSION = 2;
+    /// !interface getter VERSION
 
     /// @notice Calculates the storage address for a data point
     /// @param _data The data point to calculate address for

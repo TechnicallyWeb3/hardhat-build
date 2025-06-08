@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.20;
 
-import {Context} from "../utils/Context.sol";
+import {Context} from "@openzeppelin/contracts/utils/Context.sol";
 
 /// !interface build ./interfaces/IOwnable.sol
 /// !interface copyright "Copyright (c) 2025 TechnicallyWeb3. All rights reserved."

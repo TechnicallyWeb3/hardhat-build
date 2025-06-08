@@ -24,12 +24,12 @@ pragma solidity ^0.8.20;
 
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-/// !interface import "@openzeppelin/contracts/access/IOwnable.sol"
+/// !interface import "./IOwnable.sol"
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./interfaces/ESPTypes.sol";
-/// !interface import "./interfaces/ESPTypes.sol"
+/// !interface import "./ESPTypes.sol"
 import "./interfaces/IDataPointStorage.sol";
-/// !interface import "./interfaces/IDataPointStorage.sol"
+/// !interface import "./IDataPointStorage.sol"
 
 /// @title Data Point Registry Contract
 /// @notice Manages data point publishing and royalty payments

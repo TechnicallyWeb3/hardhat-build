@@ -399,12 +399,13 @@ export class InterfaceGenerator {
   }
 
   private parseVariables(): ParsedVariable[] {
-    const variableRegex = /(uint256|string|address|bool|bytes32|mapping\([^)]+\))\s+(public|internal|private)?\s*(constant)?\s+(\w+)/g;
+    // Enhanced regex to support all uint types, int types, and immutable/constant keywords
+    const variableRegex = /(uint\d*|int\d*|string|address|bool|bytes\d*|mapping\([^)]+\))\s+(public|internal|private)?\s*(constant|immutable)?\s*(\w+)\s*(?:=|;)/g;
     const variables: ParsedVariable[] = [];
     let match;
 
     while ((match = variableRegex.exec(this.content)) !== null) {
-      const [fullMatch, type, visibility = 'internal', constant, name] = match;
+      const [fullMatch, type, visibility = 'internal', modifier, name] = match;
       
       // Skip if this is part of a function parameter or other context
       const lineStart = this.content.lastIndexOf('\n', match.index) + 1;
@@ -424,7 +425,7 @@ export class InterfaceGenerator {
         name,
         type,
         visibility: visibility as any,
-        isConstant: !!constant,
+        isConstant: modifier === 'constant' || modifier === 'immutable',
         fullSignature: fullMatch,
         natspec,
         lineNumber
@@ -468,6 +469,9 @@ export class InterfaceGenerator {
     const getters: string[] = [];
     
     variables.forEach(variable => {
+      // Include getter if:
+      // 1. Explicitly requested via getter directive, OR
+      // 2. Variable is public (automatic getter in Solidity)
       if (this.getterDirectives.has(variable.name) || 
           (variable.visibility === 'public' && !this.excludeDirectives.has(variable.name))) {
         
@@ -476,15 +480,18 @@ export class InterfaceGenerator {
           getter += this.formatNatspec(variable.natspec, '    ') + '\n';
         }
         
+        // Determine state mutability for getter
+        const stateMutability = variable.isConstant ? ' pure' : ' view';
+        
         if (variable.type.startsWith('mapping')) {
           // Handle mapping getters - simplified for now
           const mappingMatch = variable.type.match(/mapping\((.+?)\s*=>\s*(.+?)\)/);
           if (mappingMatch) {
             const [, keyType, valueType] = mappingMatch;
-            getter += `    function ${variable.name}(${keyType} key) external view returns (${valueType});`;
+            getter += `    function ${variable.name}(${keyType} key) external${stateMutability} returns (${valueType});`;
           }
         } else {
-          getter += `    function ${variable.name}() external view returns (${variable.type});`;
+          getter += `    function ${variable.name}() external${stateMutability} returns (${variable.type});`;
         }
         
         getters.push(getter);
