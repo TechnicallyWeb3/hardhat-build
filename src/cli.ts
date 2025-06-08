@@ -349,13 +349,29 @@ This ensures interfaces are available when both TypeScript and Solidity import t
 INTERFACE DIRECTIVES:
   Add these comments to your contracts to control interface generation:
   
-  /// !interface build ../interfaces/IMyContract.sol
+  /// !interface build "./interfaces/IMyContract.sol"
+  /// !interface build "../interfaces/IMyContract.sol"  # With quotes for paths with spaces
+  /// !interface module "@openzeppelin/contracts/access/Ownable.sol" to "./interfaces/IOwnable.sol"
+  /// !interface module "@openzeppelin/contracts/access/Ownable.sol" to "./interfaces/IOwnable.sol" --remove Context
+  /// !interface module "contracts/MyModule.sol" to "./interfaces/IMyModule.sol" --replace Ownable with IOwnable --is IAccessControl
   /// !interface copyright "Copyright 2025 MyCompany"
-  /// !interface import "hardhat/console.sol";
+  /// !interface import "hardhat/console.sol"
   /// !interface replace Ownable with IOwnable
   /// !interface exclude emergencyWithdraw
   /// !interface include _calculateRewards
   /// !interface getter stakingBalance
+  /// !interface is IDataStorage, IEventEmitter
+
+MODULE FLAGS:
+  --remove <contract>              Remove inheritance from specified contract
+  --replace <old> with <new>       Replace inheritance contract (e.g., AccessControl with IAccessControl)
+  --is <interfaces>                Add comma-separated interfaces to inheritance
+
+MODULE LIMITATIONS:
+  • --replace only affects inheritance, not function parameters/return types
+  • Functions returning replaced contracts will keep original type in interface
+  • Example: "returns (Ownable)" stays as "Ownable" even with "--replace Ownable with IOwnable"
+  • Workaround: Use concrete contracts in your code, interfaces for inheritance only
 
 EXAMPLES:
   npx hardhat-build                           # Run complete build pipeline

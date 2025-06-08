@@ -24,7 +24,7 @@ import fs from 'fs';
 import path from 'path';
 
 interface InterfaceDirective {
-  type: 'build' | 'import' | 'replace' | 'remove' | 'exclude' | 'include' | 'getter' | 'copyright' | 'is';
+  type: 'build' | 'import' | 'replace' | 'remove' | 'exclude' | 'include' | 'getter' | 'copyright' | 'is' | 'module';
   content: string;
 }
 
@@ -76,16 +76,17 @@ export class InterfaceGenerator {
   private content: string;
   private lines: string[];
   private directives: Map<number, InterfaceDirective[]> = new Map();
-  private buildPath: string = '';
+  public buildPath: string = '';
   private contractPath: string;
   private importDirectives: string[] = [];
-  private replaceDirectives: Map<string, string> = new Map();
-  private removeDirectives: Set<string> = new Set();
+  public replaceDirectives: Map<string, string> = new Map();
+  public removeDirectives: Set<string> = new Set();
   private excludeDirectives: Set<string> = new Set();
   private includeDirectives: Set<string> = new Set();
   private getterDirectives: Set<string> = new Set();
   private copyrightNotice: string = '';
-  private isDirectives: string[] = [];
+  public isDirectives: string[] = [];
+  private moduleDirectives: Array<{from: string, to: string, flags: string}> = [];
   private force: boolean;
 
   constructor(contractPath: string, force: boolean = false) {
@@ -115,10 +116,21 @@ export class InterfaceGenerator {
   }
 
   private parseDirectiveContent(content: string): InterfaceDirective {
-    const buildMatch = content.match(/^build\s+(.+)$/);
+    // Handle build directive with optional quotes
+    const buildMatch = content.match(/^build\s+(?:"([^"]+)"|(\S+))$/);
     if (buildMatch) {
-      this.buildPath = buildMatch[1];
-      return { type: 'build', content: buildMatch[1] };
+      const buildPath = buildMatch[1] || buildMatch[2]; // Quoted or unquoted path
+      this.buildPath = buildPath;
+      return { type: 'build', content: buildPath };
+    }
+
+    // Handle module directive with from "..." to "..." syntax and optional flags
+    const moduleMatch = content.match(/^module\s+"([^"]+)"\s+to\s+"([^"]+)"(.*)$/);
+    if (moduleMatch) {
+      const from = moduleMatch[1];
+      const to = moduleMatch[2];
+      const flags = moduleMatch[3].trim(); // Everything after the 'to' clause
+      return { type: 'module', content: `${from} to ${to}${flags ? ' ' + flags : ''}` };
     }
 
     const copyrightMatch = content.match(/^copyright\s+"([^"]+)"$/);
@@ -126,9 +138,11 @@ export class InterfaceGenerator {
       return { type: 'copyright', content: copyrightMatch[1] };
     }
 
-    const importMatch = content.match(/^import\s+"([^"]+)"(?:\s*;)?$/);
+    // Handle import directive with optional quotes
+    const importMatch = content.match(/^import\s+(?:"([^"]+)"|(\S+))(?:\s*;)?$/);
     if (importMatch) {
-      return { type: 'import', content: importMatch[1] };
+      const importPath = importMatch[1] || importMatch[2]; // Quoted or unquoted path
+      return { type: 'import', content: importPath };
     }
 
     const replaceMatch = content.match(/^replace\s+(\w+)\s+with\s+(\w+)$/);
@@ -192,6 +206,16 @@ export class InterfaceGenerator {
         break;
       case 'is':
         directive.content.split(/\s*,\s*/).forEach(item => this.isDirectives.push(item.trim()));
+        break;
+      case 'module':
+        // Handle module directive - content is "from to to flags"
+        const moduleMatch = directive.content.match(/^(.+?)\s+to\s+(.+?)(\s+.+)?$/);
+        if (moduleMatch) {
+          const from = moduleMatch[1];
+          const to = moduleMatch[2];
+          const flags = moduleMatch[3] ? moduleMatch[3].trim() : '';
+          this.moduleDirectives.push({from, to, flags});
+        }
         break;
     }
   }
@@ -611,6 +635,15 @@ export class InterfaceGenerator {
   }
 
   public writeInterface(): 'generated' | 'skipped' {
+    // First, process any module directives to generate interfaces from external contracts
+    for (const moduleDirective of this.moduleDirectives) {
+      try {
+        this.processModuleDirective(moduleDirective);
+      } catch (error) {
+        console.error(`❌ Error processing module directive ${moduleDirective.from} -> ${moduleDirective.to}:`, error);
+      }
+    }
+
     // Handle relative paths - resolve relative to the contract file's directory
     let outputPath: string;
     if (path.isAbsolute(this.buildPath)) {
@@ -642,6 +675,136 @@ export class InterfaceGenerator {
     fs.writeFileSync(outputPath, interfaceContent);
     console.log(`Interface generated: ${outputPath}`);
     return 'generated';
+  }
+
+  private processModuleDirective(moduleDirective: {from: string, to: string, flags: string}): void {
+    const { from: modulePath, to: outputPath, flags } = moduleDirective;
+    
+    // Parse flags
+    const moduleFlags = this.parseModuleFlags(flags);
+    
+    // Resolve the module path
+    let resolvedModulePath: string;
+    
+    if (modulePath.startsWith('@') || modulePath.startsWith('.')) {
+      // Handle npm packages or relative paths
+      try {
+        if (modulePath.startsWith('@')) {
+          // For npm packages, try to resolve through node_modules
+          const packagePath = path.join(process.cwd(), 'node_modules', modulePath);
+          if (fs.existsSync(packagePath)) {
+            resolvedModulePath = packagePath;
+          } else {
+            throw new Error(`Package not found: ${modulePath}`);
+          }
+        } else {
+          // For relative paths, resolve relative to the current contract
+          const contractDir = path.dirname(this.contractPath);
+          resolvedModulePath = path.resolve(contractDir, modulePath);
+        }
+      } catch (error) {
+        throw new Error(`Could not resolve module path: ${modulePath}`);
+      }
+    } else {
+      // Absolute path
+      resolvedModulePath = modulePath;
+    }
+
+    if (!fs.existsSync(resolvedModulePath)) {
+      throw new Error(`Module file not found: ${resolvedModulePath}`);
+    }
+
+    // Read the external contract
+    const externalContent = fs.readFileSync(resolvedModulePath, 'utf8');
+    
+    // Create a temporary InterfaceGenerator for the external contract
+    const tempGenerator = new InterfaceGenerator(resolvedModulePath, this.force);
+    
+    // Apply module-specific flags to the temporary generator
+    this.applyModuleFlags(tempGenerator, moduleFlags);
+    
+    // Override the build path for the temporary generator
+    tempGenerator.buildPath = outputPath;
+    
+    // Generate the interface content
+    const interfaceContent = tempGenerator.generateInterface();
+    
+    // Resolve output path relative to current contract
+    let resolvedOutputPath: string;
+    if (path.isAbsolute(outputPath)) {
+      resolvedOutputPath = outputPath;
+    } else {
+      const contractDir = path.dirname(this.contractPath);
+      resolvedOutputPath = path.resolve(contractDir, outputPath);
+    }
+    
+    // Create directory if it doesn't exist
+    const outputDir = path.dirname(resolvedOutputPath);
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+
+    // Write the interface file
+    fs.writeFileSync(resolvedOutputPath, interfaceContent);
+    console.log(`📦 Module interface generated: ${modulePath} -> ${resolvedOutputPath}`);
+  }
+
+  private parseModuleFlags(flags: string): {remove: string[], replace: Map<string, string>, is: string[]} {
+    const result = {
+      remove: [] as string[],
+      replace: new Map<string, string>(),
+      is: [] as string[]
+    };
+
+    if (!flags) return result;
+
+    // Parse --remove flags
+    const removeMatches = flags.match(/--remove\s+(\w+)(?:\s|$)/g);
+    if (removeMatches) {
+      removeMatches.forEach(match => {
+        const removeMatch = match.match(/--remove\s+(\w+)/);
+        if (removeMatch) {
+          result.remove.push(removeMatch[1]);
+        }
+      });
+    }
+
+    // Parse --replace flags
+    const replaceMatches = flags.match(/--replace\s+(\w+)\s+with\s+(\w+)(?:\s|$)/g);
+    if (replaceMatches) {
+      replaceMatches.forEach(match => {
+        const replaceMatch = match.match(/--replace\s+(\w+)\s+with\s+(\w+)/);
+        if (replaceMatch) {
+          result.replace.set(replaceMatch[1], replaceMatch[2]);
+        }
+      });
+    }
+
+    // Parse --is flags
+    const isMatches = flags.match(/--is\s+([^-]+)(?:--|$)/);
+    if (isMatches) {
+      const isContent = isMatches[1].trim();
+      result.is = isContent.split(/\s*,\s*/).map(s => s.trim()).filter(s => s);
+    }
+
+    return result;
+  }
+
+  private applyModuleFlags(generator: InterfaceGenerator, moduleFlags: {remove: string[], replace: Map<string, string>, is: string[]}): void {
+    // Apply remove flags
+    moduleFlags.remove.forEach(item => {
+      generator.removeDirectives.add(item);
+    });
+
+    // Apply replace flags
+    moduleFlags.replace.forEach((replacement, original) => {
+      generator.replaceDirectives.set(original, replacement);
+    });
+
+    // Apply is flags
+    moduleFlags.is.forEach(item => {
+      generator.isDirectives.push(item);
+    });
   }
 }
 
