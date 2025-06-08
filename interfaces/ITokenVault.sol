@@ -4,12 +4,12 @@ pragma solidity ^0.8.20;
 // Copyright (c) 2024 TechnicallyWeb3. All rights reserved.
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/access/IOwnable.sol";
+import "@openzeppelin/contracts/access/IAccessControl.sol";
 
 /// @title Token Vault with Staking Rewards
 /// @notice A vault that allows users to stake tokens and earn rewards
 /// @dev Implements staking mechanics with time-based rewards and access control
-interface ITokenVault is IERC20, IOwnable {
+interface ITokenVault is IERC20, IAccessControl {
 
     /// @notice Emitted when tokens are staked
     /// @param user The address that staked tokens

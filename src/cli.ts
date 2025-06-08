@@ -182,13 +182,8 @@ class HardhatBuildCLI {
       optional: false
     });
 
-    // Step 3: Interface generation
-    steps.push({
-      name: 'Interface Generation',
-      command: 'node',
-      args: ['-e', `require("./dist/buildInterface").buildAllInterfaces(${this.force}).catch(console.error)`],
-      optional: false
-    });
+    // Step 3: Interface generation - call directly instead of spawning
+    // We'll handle this separately after the other steps
 
     // Execute all steps
     let success = true;
@@ -199,6 +194,19 @@ class HardhatBuildCLI {
         break;
       }
       console.log(); // Add spacing between steps
+    }
+
+    // Handle interface generation directly
+    if (success) {
+      try {
+        this.log('Interface Generation...');
+        await buildAllInterfaces(this.force);
+        this.log('✅ Interface Generation completed successfully');
+        console.log(); // Add spacing
+      } catch (error) {
+        this.log(`❌ Interface Generation failed: ${error}`);
+        success = false;
+      }
     }
 
     // Summary

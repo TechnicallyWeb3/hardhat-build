@@ -4,7 +4,7 @@ pragma solidity ^0.8.28;
 /// !interface build ../interfaces/ITokenVault.sol
 /// !interface copyright "Copyright (c) 2024 TechnicallyWeb3. All rights reserved."
 /// !interface import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-/// !interface import "@openzeppelin/contracts/access/IOwnable.sol";
+/// !interface import "@openzeppelin/contracts/access/IAccessControl.sol";
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -16,7 +16,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 /// @custom:version 1.0.0
 contract TokenVault is ERC20, Ownable, ReentrancyGuard {
 /// !interface replace ERC20 with IERC20
-/// !interface replace Ownable with IOwnable
+/// !interface replace Ownable with IAccessControl
 /// !interface remove ReentrancyGuard
 
     /// @notice The staking token accepted by this vault
