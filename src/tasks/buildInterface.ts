@@ -24,8 +24,8 @@ import { task } from "hardhat/config";
 import { buildAllInterfaces } from "../buildInterface";
 import { HardhatBuildCLI } from "../cli";
 
-task("build", "Complete build pipeline: TypeScript, Hardhat compile, and interface generation")
-  .addFlag("interfaces", "Only build interfaces (skip TypeScript and Hardhat compilation)")
+task("build", "Complete build pipeline: interface generation and Hardhat compile")
+  .addFlag("interfaces", "Only build interfaces (skip Hardhat compilation)")
   .addFlag("force", "Force regeneration of interface files even if they are up to date")
   .addOptionalVariadicPositionalParam("files", "Optional contract files to process (default: all with directives)")
   .setAction(async (taskArgs, hre) => {

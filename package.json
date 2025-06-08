@@ -1,6 +1,6 @@
 {
   "name": "hardhat-build",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "A Hardhat plugin to automatically generate Solidity interface files from contract implementations with natspec documentation",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

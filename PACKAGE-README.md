@@ -224,7 +224,7 @@ function _internalHelper() internal view returns (uint256) {
 Run the complete build pipeline with a single command:
 
 ```bash
-# Complete build: TypeScript + Hardhat compile + Interface generation
+# Complete build: Interface generation + Hardhat compile
 npx hardhat-build
 
 # Verbose output to see detailed progress
@@ -235,13 +235,11 @@ npx hardhat-build --help
 ```
 
 **What it does:**
-1. 📦 **TypeScript Compilation** (if `tsconfig.build.json` exists)
+1. 🔧 **Interface Generation** (all contracts with directives)
 2. 🔨 **Hardhat Contract Compilation** (`hardhat compile`)
-3. 🔧 **Interface Generation** (all contracts with directives)
 
 **Smart Detection:**
 - Automatically detects your package manager (npm, yarn, pnpm)
-- Skips TypeScript compilation if not applicable
 - Provides clear progress feedback and timing
 
 ## Hardhat Tasks

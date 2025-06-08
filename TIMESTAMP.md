@@ -18,7 +18,7 @@ This file serves as proof of original publication for the Hardhat Build codebase
 ### Innovation Claims:
 1. **Interface Directive System**: Novel comment-based interface generation directives (`/// !interface build`, `/// !interface replace`, etc.) that allow developers to control interface generation through embedded contract comments
 2. **Natspec Preservation Algorithm**: Advanced parsing system that maintains both `///` and `/** */` style natspec documentation during interface generation
-3. **Comprehensive Build Pipeline**: Unified CLI that handles TypeScript compilation, Hardhat artifact generation, and interface building in a single command with smart package manager detection
+3. **Comprehensive Build Pipeline**: Unified CLI that handles Hardhat artifact generation and interface building in a single command with smart package manager detection
 
 ### Hash of Core Algorithm (Interface Directive Parser):
 ```typescript
@@ -56,23 +56,13 @@ private parseDirectiveContent(content: string): InterfaceDirective {
 public async run(): Promise<void> {
   const steps: BuildStep[] = [];
 
-  // Step 1: TypeScript compilation (if applicable)
-  if (this.hasTypeScript() && this.hasTsconfigBuild()) {
-    const packageManager = this.detectPackageManager();
-    const tscCommand = packageManager === 'npm' ? 'npx' : packageManager;
-    const tscArgs = packageManager === 'npm' ? ['tsc'] : ['tsc'];
-    
-    if (fs.existsSync(path.join(this.cwd, 'tsconfig.build.json'))) {
-      tscArgs.push('-p', 'tsconfig.build.json');
-    }
-
-    steps.push({
-      name: 'TypeScript Compilation',
-      command: tscCommand,
-      args: tscArgs,
-      optional: true
-    });
-  }
+  // Step 1: Interface generation (generate interfaces first)
+  steps.push({
+    name: 'Interface Generation',
+    command: 'node',
+    args: ['-e', 'require("./dist/buildInterface").buildAllInterfaces().catch(console.error)'],
+    optional: false
+  });
 
   // Step 2: Hardhat compilation (generate artifacts)
   const hardhatCommand = this.getHardhatCommand();
@@ -82,14 +72,6 @@ public async run(): Promise<void> {
     name: 'Hardhat Contract Compilation',
     command: hardhatCommand,
     args: [...hardhatBaseArgs, 'compile'],
-    optional: false
-  });
-
-  // Step 3: Interface generation
-  steps.push({
-    name: 'Interface Generation',
-    command: 'node',
-    args: ['-e', 'require("./dist/buildInterface").buildAllInterfaces().catch(console.error)'],
     optional: false
   });
 }

@@ -45,9 +45,8 @@ npx hardhat build --interfaces # Interface-only builds
 ```
 
 **Pipeline Stages**:
-1. TypeScript compilation (dist/)
-2. Hardhat contract compilation (artifacts/)  
-3. Interface generation (interfaces/)
+1. Interface generation (interfaces/)
+2. Hardhat contract compilation (artifacts/)
 
 ### 4. Hardhat Task Integration
 Seamless integration with existing Hardhat workflows through custom tasks:
@@ -191,7 +190,7 @@ When helping users with this codebase, focus on:
 
 ### Common User Issues
 - **Path Resolution**: Most common issue is incorrect relative paths in build directives
-- **TypeScript Compilation**: Users often need help with tsconfig.build.json setup
+- **Hardhat Configuration**: Users often need help with hardhat.config.js setup
 - **Hardhat Integration**: Configuration of hardhat.config.js/ts for plugin loading
 
 ### Enhancement Opportunities
@@ -214,7 +213,6 @@ And write access to:
 
 ### Command Execution
 The CLI executes system commands for:
-- TypeScript compilation (`tsc`)
 - Hardhat compilation (`hardhat compile`)
 - Package manager operations
 

@@ -129,23 +129,6 @@ class HardhatBuildCLI {
     }
   }
 
-  private hasTypeScript(): boolean {
-    const packageJsonPath = path.join(this.cwd, 'package.json');
-    if (!fs.existsSync(packageJsonPath)) return false;
-
-    try {
-      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-      return !!(packageJson.devDependencies?.typescript || packageJson.dependencies?.typescript);
-    } catch {
-      return false;
-    }
-  }
-
-  private hasTsconfigBuild(): boolean {
-    return fs.existsSync(path.join(this.cwd, 'tsconfig.build.json')) ||
-           fs.existsSync(path.join(this.cwd, 'tsconfig.json'));
-  }
-
   private getHardhatCommand(): string {
     const packageManager = this.detectPackageManager();
     
@@ -196,25 +179,7 @@ class HardhatBuildCLI {
 
     const steps: BuildStep[] = [];
 
-    // Step 2: TypeScript compilation (can now use generated interfaces)
-    if (this.hasTypeScript() && this.hasTsconfigBuild()) {
-      const packageManager = this.detectPackageManager();
-      const tscCommand = packageManager === 'npm' ? 'npx' : packageManager;
-      const tscArgs = packageManager === 'npm' ? ['tsc'] : ['tsc'];
-      
-      if (fs.existsSync(path.join(this.cwd, 'tsconfig.build.json'))) {
-        tscArgs.push('-p', 'tsconfig.build.json');
-      }
-
-      steps.push({
-        name: 'TypeScript Compilation',
-        command: tscCommand,
-        args: tscArgs,
-        optional: true
-      });
-    }
-
-    // Step 3: Hardhat compilation (can now import interfaces)
+    // Step 2: Hardhat compilation (can now import interfaces)
     const hardhatCommand = this.getHardhatCommand();
     const hardhatBaseArgs = this.getHardhatArgs();
     
@@ -244,9 +209,6 @@ class HardhatBuildCLI {
       
       console.log('📁 Generated outputs:');
       console.log('   • Interface files in interfaces/');
-      if (this.hasTypeScript()) {
-        console.log('   • TypeScript compiled to dist/');
-      }
       console.log('   • Contract artifacts in artifacts/');
     } else {
       console.log('❌ Build Pipeline Failed!');
@@ -340,11 +302,10 @@ OPTIONS:
 
 WHAT IT DOES:
   1. 🔧 Builds all interfaces with /// !interface directives (FIRST)
-  2. 📦 Compiles TypeScript (can now import generated interfaces)
-  3. 🔨 Runs 'hardhat compile' to generate contract artifacts
-  4. 📊 Reports build status and generated outputs
+  2. 🔨 Runs 'hardhat compile' to generate contract artifacts
+  3. 📊 Reports build status and generated outputs
 
-This ensures interfaces are available when both TypeScript and Solidity import them.
+This ensures interfaces are available when Solidity contracts import them.
 
 INTERFACE DIRECTIVES:
   Add these comments to your contracts to control interface generation:
@@ -394,7 +355,6 @@ HARDHAT INTEGRATION:
     npx hardhat build --interfaces --force         # Force interface regeneration
 
 OUTPUTS:
-  • dist/          TypeScript compiled files
   • artifacts/     Hardhat compilation artifacts
   • interfaces/    Generated interface files with natspec
 
