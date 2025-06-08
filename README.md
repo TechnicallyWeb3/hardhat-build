@@ -152,6 +152,68 @@ npx hardhat-build
 npx ts-node node_modules/hardhat-build/src/buildInterface.ts all
 ```
 
+## Best Practices
+
+### 📁 Recommended Directory Structure
+
+We recommend using the `interfaces/` directory pattern with the `I{ContractName}.sol` naming convention:
+
+```
+project/
+├── contracts/
+│   ├── Token.sol                    // Contract implementations
+│   ├── Staking.sol
+│   └── Registry.sol
+├── interfaces/                      // Generated interfaces (add to .gitignore)
+│   ├── IToken.sol
+│   ├── IStaking.sol
+│   └── IRegistry.sol
+└── .gitignore
+```
+
+### 🔧 Interface Directive Pattern
+
+Use this pattern in your contracts:
+
+```solidity
+/// !interface build ./interfaces/I{ContractName}.sol
+contract MyContract {
+    // implementation
+}
+```
+
+Examples:
+```solidity
+/// !interface build ./interfaces/IToken.sol
+contract Token { }
+
+/// !interface build ../interfaces/IStaking.sol  // from subdirectory
+contract Staking { }
+```
+
+### 📝 Git Ignore Configuration
+
+**Important**: Add generated interfaces to your `.gitignore` since they are build artifacts:
+
+```gitignore
+# Build artifacts
+artifacts/
+cache/
+typechain-types/
+
+# Generated interfaces (hardhat-build)
+**/interfaces/
+```
+
+This prevents generated interface files from being committed to your repository, keeping it clean and avoiding merge conflicts.
+
+### 🎯 Why This Pattern?
+
+- **Consistent**: Standard `I{ContractName}` naming follows Solidity conventions
+- **Organized**: Dedicated `interfaces/` directory keeps generated files separate
+- **Clean Repos**: Adding to `.gitignore` prevents committing build artifacts
+- **Team Friendly**: Everyone generates the same interfaces locally
+
 ## Interface Directives
 
 Interface directives are special comments that control how the interface is generated. All directives start with `/// !interface`.

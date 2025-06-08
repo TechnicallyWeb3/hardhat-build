@@ -312,6 +312,14 @@ INTERFACE DIRECTIVES:
   
   /// !interface build "./interfaces/IMyContract.sol"
   /// !interface build "../interfaces/IMyContract.sol"  # With quotes for paths with spaces
+  
+BEST PRACTICES:
+  📁 Use the interfaces/ directory with I{ContractName}.sol naming:
+     /// !interface build "./interfaces/IToken.sol"
+     /// !interface build "./interfaces/IStaking.sol"
+  
+  📝 Add to .gitignore to keep repos clean:
+     **/interfaces/  # Generated interface files
   /// !interface module "@openzeppelin/contracts/access/Ownable.sol" to "./interfaces/IOwnable.sol"
   /// !interface module "@openzeppelin/contracts/access/Ownable.sol" to "./interfaces/IOwnable.sol" --remove Context
   /// !interface module "contracts/MyModule.sol" to "./interfaces/IMyModule.sol" --replace Ownable with IOwnable --is IAccessControl
