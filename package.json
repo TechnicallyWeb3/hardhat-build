@@ -1,0 +1,55 @@
+{
+  "name": "hardhat-build",
+  "version": "0.0.2",
+  "description": "A Hardhat plugin to automatically generate Solidity interface files from contract implementations with natspec documentation",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "hardhat-build": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "examples",
+    "PACKAGE-README.md",
+    "LICENSE",
+    "TIMESTAMP.md",
+    "LLM_CONTEXT.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "npx hardhat test",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TechnicallyWeb3/hardhat-build.git"
+  },
+  "keywords": [
+    "hardhat",
+    "hardhat-plugin",
+    "solidity",
+    "interface",
+    "smart-contract",
+    "build-tools",
+    "natspec",
+    "documentation"
+  ],
+  "author": "TechnicallyWeb3",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TechnicallyWeb3/hardhat-build/issues"
+  },
+  "homepage": "https://github.com/TechnicallyWeb3/hardhat-build#readme",
+  "peerDependencies": {
+    "hardhat": "^2.0.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@types/node": "^18.0.0",
+    "hardhat": "^2.24.2",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

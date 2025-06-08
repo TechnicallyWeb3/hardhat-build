@@ -1,0 +1,39 @@
+# Source files (only dist should be published)
+src/
+contracts/
+interfaces/
+test/
+ignition/
+
+# Development files
+*.log
+.env
+.env.*
+coverage/
+coverage.json
+typechain/
+typechain-types/
+
+# Cache directories
+cache/
+artifacts/
+.hardhat/
+node_modules/
+
+# Config files
+hardhat.config.*
+tsconfig.json
+tsconfig.build.json
+.gitignore
+
+# Documentation (except package README)
+README.md
+!README-package.md
+
+# Include examples folder
+!examples/
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml 
