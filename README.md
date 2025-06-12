@@ -34,6 +34,8 @@ require('hardhat-build');
 
 **No additional setup required!** Hardhat projects typically include TypeScript and ts-node dependencies.
 
+> **📁 Directory Structure Requirement**: This plugin expects your Solidity contracts to be in a `contracts/` directory at your project root. This follows the standard Hardhat convention and requires no configuration.
+
 ### Standalone Installation
 
 For use outside of Hardhat projects or global installation:
@@ -53,10 +55,12 @@ npm install --save-dev typescript ts-node
 
 ## Quick Start
 
+> **⚠️ Important**: This plugin requires your Solidity contracts to be in a `contracts/` directory at your project root. This follows the standard Hardhat convention.
+
 ### Option 1: Hardhat Integration (Recommended)
 
 ```solidity
-/// !interface build ../interfaces/IMyContract.sol
+/// @custom:interface build ../interfaces/IMyContract.sol
 contract MyContract {
     function myFunction() external pure returns (uint256);
 }
@@ -143,7 +147,7 @@ All commands support batch processing with automatic contract discovery:
 ```bash
 # These commands will:
 # - Recursively search the './contracts' directory  
-# - Find all .sol files with '/// !interface build' directives
+# - Find all .sol files with '/// @custom:interface build' directives
 # - Build interfaces for all discovered contracts
 # - Report success/failure summary with file counts
 
@@ -176,7 +180,7 @@ project/
 Use this pattern in your contracts:
 
 ```solidity
-/// !interface build ./interfaces/I{ContractName}.sol
+/// @custom:interface build ./interfaces/I{ContractName}.sol
 contract MyContract {
     // implementation
 }
@@ -184,10 +188,10 @@ contract MyContract {
 
 Examples:
 ```solidity
-/// !interface build ./interfaces/IToken.sol
+/// @custom:interface build ./interfaces/IToken.sol
 contract Token { }
 
-/// !interface build ../interfaces/IStaking.sol  // from subdirectory
+/// @custom:interface build ../interfaces/IStaking.sol  // from subdirectory
 contract Staking { }
 ```
 
@@ -216,7 +220,7 @@ This prevents generated interface files from being committed to your repository,
 
 ## Interface Directives
 
-Interface directives are special comments that control how the interface is generated. All directives start with `/// !interface`.
+Interface directives are special comments that control how the interface is generated. All directives start with `/// @custom:interface`.
 
 ### Required Directives
 
@@ -224,7 +228,7 @@ Interface directives are special comments that control how the interface is gene
 **Required.** Specifies the output path for the generated interface.
 
 ```solidity
-/// !interface build ./interfaces/IMyContract.sol
+/// @custom:interface build ./interfaces/IMyContract.sol
 ```
 
 ### Optional Directives
@@ -233,15 +237,15 @@ Interface directives are special comments that control how the interface is gene
 Adds a copyright notice to the generated interface.
 
 ```solidity
-/// !interface copyright "Copyright (c) 2024 MyCompany. All rights reserved."
+/// @custom:interface copyright "Copyright (c) 2024 MyCompany. All rights reserved."
 ```
 
 #### `import`
 Adds import statements to the generated interface.
 
 ```solidity
-/// !interface import "@openzeppelin/contracts/access/IOwnable.sol";
-/// !interface import "./ICustomInterface.sol";
+/// @custom:interface import "@openzeppelin/contracts/access/IOwnable.sol";
+/// @custom:interface import "./ICustomInterface.sol";
 ```
 
 #### `replace`
@@ -249,7 +253,7 @@ Replaces inheritance contracts with interface equivalents.
 
 ```solidity
 contract MyContract is Ownable {
-/// !interface replace Ownable with IOwnable
+/// @custom:interface replace Ownable with IOwnable
 ```
 
 #### `remove`
@@ -257,7 +261,7 @@ Removes inheritance contracts from the interface.
 
 ```solidity
 contract MyContract is Ownable, ReentrancyGuard {
-/// !interface remove ReentrancyGuard
+/// @custom:interface remove ReentrancyGuard
 ```
 
 #### `is`
@@ -265,10 +269,10 @@ Adds additional interface inheritance that wasn't in the original contract.
 
 ```solidity
 contract MyContract is Ownable {
-/// !interface is IDataStorage
-/// !interface is IEventEmitter
+/// @custom:interface is IDataStorage
+/// @custom:interface is IEventEmitter
 // OR use comma-separated in single line:
-/// !interface is IDataStorage, IEventEmitter
+/// @custom:interface is IDataStorage, IEventEmitter
 // Results in: interface IMyContract is IOwnable, IDataStorage, IEventEmitter
 ```
 
@@ -279,10 +283,10 @@ Excludes specific functions, events, or errors from the interface.
 function internalFunction() public {
     // implementation
 }
-/// !interface exclude internalFunction
+/// @custom:interface exclude internalFunction
 
 event DebugEvent(string message);
-/// !interface exclude DebugEvent
+/// @custom:interface exclude DebugEvent
 ```
 
 #### `include`
@@ -292,7 +296,7 @@ Forces inclusion of internal/private functions in the interface.
 function _internalHelper() internal view returns (uint256) {
     return someValue;
 }
-/// !interface include _internalHelper
+/// @custom:interface include _internalHelper
 ```
 
 #### `getter`
@@ -300,7 +304,7 @@ Generates getter functions for variables (automatic for public variables).
 
 ```solidity
 uint256 internal myValue;
-/// !interface getter myValue
+/// @custom:interface getter myValue
 ```
 
 ## Natspec Documentation Support
@@ -335,19 +339,19 @@ function approve(address spender, uint256 amount) external returns (bool success
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-/// !interface build ./interfaces/IExampleToken.sol
-/// !interface copyright "Copyright (c) 2024 MyCompany. All rights reserved."
+/// @custom:interface build ./interfaces/IExampleToken.sol
+/// @custom:interface copyright "Copyright (c) 2024 MyCompany. All rights reserved."
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-/// !interface import "@openzeppelin/contracts/access/IOwnable.sol";
+/// @custom:interface import "@openzeppelin/contracts/access/IOwnable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /// @title Example Token Contract
 /// @notice A simple ERC20-like token implementation
 /// @dev Demonstrates the build interface system
 contract ExampleToken is Ownable, ReentrancyGuard {
-/// !interface replace Ownable with IOwnable
-/// !interface remove ReentrancyGuard
+/// @custom:interface replace Ownable with IOwnable
+/// @custom:interface remove ReentrancyGuard
 
     /// @notice The total supply of tokens
     uint256 public totalSupply;
@@ -363,7 +367,7 @@ contract ExampleToken is Ownable, ReentrancyGuard {
     
     /// @notice Debug event (excluded from interface)
     event DebugEvent(string message);
-    /// !interface exclude DebugEvent
+    /// @custom:interface exclude DebugEvent
     
     /// @notice Thrown when insufficient balance
     /// @param requested The requested amount
@@ -392,7 +396,7 @@ contract ExampleToken is Ownable, ReentrancyGuard {
     function _calculateFee(uint256 amount) internal pure returns (uint256) {
         return amount / 100;
     }
-    /// !interface include _calculateFee
+    /// @custom:interface include _calculateFee
 }
 ```
 
@@ -458,9 +462,9 @@ By default, the script excludes:
 
 ### Missing Build Directive
 ```bash
-Error: No build directive found. Use /// !interface build <path>
+Error: No build directive found. Use /// @custom:interface build <path>
 ```
-**Solution:** Add `/// !interface build <output-path>` to your contract.
+**Solution:** Add `/// @custom:interface build <output-path>` to your contract.
 
 ### Invalid Solidity Syntax
 ```bash
@@ -480,12 +484,12 @@ Error: EACCES: permission denied
 Place all interface directives near the top of your contract:
 
 ```solidity
-/// !interface build ./interfaces/IMyContract.sol
-/// !interface copyright "Copyright (c) 2024 Company Name. All rights reserved."
-/// !interface import "@openzeppelin/contracts/access/IOwnable.sol";
+/// @custom:interface build ./interfaces/IMyContract.sol
+/// @custom:interface copyright "Copyright (c) 2024 Company Name. All rights reserved."
+/// @custom:interface import "@openzeppelin/contracts/access/IOwnable.sol";
 
 contract MyContract is Ownable {
-/// !interface replace Ownable with IOwnable
+/// @custom:interface replace Ownable with IOwnable
     // Contract implementation
 }
 ```
@@ -520,16 +524,16 @@ Keep related directives together and add comments for clarity:
 
 ```solidity
 // Interface configuration
-/// !interface build ./interfaces/IComplexContract.sol
-/// !interface copyright "Copyright (c) 2024 MyCompany. All rights reserved."
+/// @custom:interface build ./interfaces/IComplexContract.sol
+/// @custom:interface copyright "Copyright (c) 2024 MyCompany. All rights reserved."
 
 // Import dependencies
-/// !interface import "@openzeppelin/contracts/access/IOwnable.sol";
-/// !interface import "./ICustomInterface.sol";
+/// @custom:interface import "@openzeppelin/contracts/access/IOwnable.sol";
+/// @custom:interface import "./ICustomInterface.sol";
 
 // Inheritance modifications
-/// !interface replace Ownable with IOwnable
-/// !interface remove ReentrancyGuard
+/// @custom:interface replace Ownable with IOwnable
+/// @custom:interface remove ReentrancyGuard
 ```
 
 ### 5. Batch Processing in CI/CD
@@ -549,7 +553,13 @@ Add interface generation to your build pipeline:
 ### Common Issues
 
 **Q: The script doesn't find my contract**  
-A: Ensure your contract file contains `/// !interface build` directive and is in the `./contracts` directory.
+A: Ensure your contract file contains `/// @custom:interface build` directive and is located in the `./contracts` directory (standard Hardhat structure).
+
+**Q: "No contracts found with build directives" error**  
+A: Check that:
+   - Your contracts are in a `contracts/` directory at your project root
+   - Your contract files have the `.sol` extension
+   - Your contracts contain `/// @custom:interface build <path>` directives
 
 **Q: Natspec comments are missing from the interface**  
 A: Check that natspec comments are placed directly above the function/event/error definition without blank lines.
@@ -671,4 +681,25 @@ npx ts-node src/buildInterface.ts all --force
 
 The tool will show clear messages indicating which files were skipped vs. regenerated:
 - `⏭️ Skipping file.sol (up to date, use --force to regenerate)`
-- `Interface generated: file.sol` 
+- `Interface generated: file.sol`
+
+### Module Flags:
+  --remove <contract>              Remove inheritance from specified contract
+  --replace <old> with <new>       Replace contract types in inheritance AND function signatures
+  --is <interfaces>                Add comma-separated interfaces to inheritance
+  --import "<path>"               Add import statement to the generated interface
+
+### Module Examples:
+```solidity
+// Basic module interface generation
+/// @custom:interface module "@openzeppelin/contracts/access/Ownable.sol" to "./interfaces/IOwnable.sol"
+
+// Remove inheritance
+/// @custom:interface module "@openzeppelin/contracts/access/Ownable.sol" to "./interfaces/IOwnable.sol" --remove Context
+
+// Replace types and add imports
+/// @custom:interface module "@tw3/esp/contracts/DataPointRegistry.sol" to "./interfaces/IDataPointRegistry.sol" --replace DataPointStorage with IDataPointStorage --import "./IDataPointStorage.sol"
+
+// Multiple flags
+/// @custom:interface module "@openzeppelin/contracts/access/Ownable.sol" to "./interfaces/IOwnable.sol" --remove Context --replace Ownable with IOwnable --import "./IOwnable.sol" --is IAccessControl
+``` 

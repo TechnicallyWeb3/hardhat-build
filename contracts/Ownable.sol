@@ -5,8 +5,8 @@ pragma solidity ^0.8.20;
 
 import {Context} from "@openzeppelin/contracts/utils/Context.sol";
 
-/// !interface build ./interfaces/IOwnable.sol
-/// !interface copyright "Copyright (c) 2025 TechnicallyWeb3. All rights reserved."
+/// @custom:interface build ./interfaces/IOwnable.sol
+/// @custom:interface copyright "Copyright (c) 2025 TechnicallyWeb3. All rights reserved."
 
 /**
  * @dev Contract module which provides a basic access control mechanism, where
@@ -21,7 +21,7 @@ import {Context} from "@openzeppelin/contracts/utils/Context.sol";
  * the owner.
  */
 abstract contract Ownable is Context {
-    /// !interface remove Context
+    /// @custom:interface remove Context
     address private _owner;
 
     /**

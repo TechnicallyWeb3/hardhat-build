@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.28;
 
-/// !interface build ../interfaces/ILock.sol
-/// !interface copyright "Copyright (c) 2024 TechnicallyWeb3. All rights reserved."
+/// @custom:interface build ../interfaces/ILock.sol
+/// @custom:interface copyright "Copyright (c) 2024 TechnicallyWeb3. All rights reserved."
 
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";

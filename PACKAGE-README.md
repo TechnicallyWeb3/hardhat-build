@@ -88,8 +88,8 @@ The tool automatically skips up-to-date interface files by comparing timestamps.
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-/// !interface build ../interfaces/IMyContract.sol
-/// !interface copyright "Copyright (c) 2024 MyCompany. All rights reserved."
+/// @custom:interface build ../interfaces/IMyContract.sol
+/// @custom:interface copyright "Copyright (c) 2024 MyCompany. All rights reserved."
 
 /// @title My Contract
 /// @notice A sample contract demonstrating the interface builder
@@ -182,7 +182,7 @@ project/
 Use this pattern in your contracts:
 
 ```solidity
-/// !interface build ./interfaces/I{ContractName}.sol
+/// @custom:interface build ./interfaces/I{ContractName}.sol
 contract MyContract {
     // implementation
 }
@@ -190,10 +190,10 @@ contract MyContract {
 
 Examples:
 ```solidity
-/// !interface build ./interfaces/IToken.sol
+/// @custom:interface build ./interfaces/IToken.sol
 contract Token { }
 
-/// !interface build ../interfaces/IStaking.sol  // from subdirectory
+/// @custom:interface build ../interfaces/IStaking.sol  // from subdirectory
 contract Staking { }
 ```
 
@@ -228,38 +228,38 @@ Control interface generation with special comments in your contracts:
 
 #### `build` - Specify Output Path
 ```solidity
-/// !interface build ../interfaces/IMyContract.sol
+/// @custom:interface build ../interfaces/IMyContract.sol
 ```
 
 ### Optional Directives
 
 #### `copyright` - Add Copyright Notice
 ```solidity
-/// !interface copyright "Copyright (c) 2024 MyCompany. All rights reserved."
+/// @custom:interface copyright "Copyright (c) 2024 MyCompany. All rights reserved."
 ```
 
 #### `import` - Add Import Statements
 ```solidity
-/// !interface import "@openzeppelin/contracts/access/IOwnable.sol";
+/// @custom:interface import "@openzeppelin/contracts/access/IOwnable.sol";
 ```
 
 #### `replace` - Replace Inheritance
 ```solidity
 contract MyContract is Ownable {
-/// !interface replace Ownable with IOwnable
+/// @custom:interface replace Ownable with IOwnable
 ```
 
 #### `remove` - Remove Inheritance
 ```solidity
 contract MyContract is Ownable, ReentrancyGuard {
-/// !interface remove ReentrancyGuard
+/// @custom:interface remove ReentrancyGuard
 ```
 
 #### `is` - Add Interface Inheritance
 ```solidity
 contract MyContract is Ownable {
-/// !interface is IDataStorage
-/// !interface is IEventEmitter
+/// @custom:interface is IDataStorage
+/// @custom:interface is IEventEmitter
 // Results in: interface IMyContract is IOwnable, IDataStorage, IEventEmitter
 ```
 
@@ -268,7 +268,7 @@ contract MyContract is Ownable {
 function debugFunction() public {
     // implementation
 }
-/// !interface exclude debugFunction
+/// @custom:interface exclude debugFunction
 ```
 
 #### `include` - Force Include Internal Functions
@@ -276,7 +276,7 @@ function debugFunction() public {
 function _internalHelper() internal view returns (uint256) {
     return someValue;
 }
-/// !interface include _internalHelper
+/// @custom:interface include _internalHelper
 ```
 
 ## Complete Build Pipeline
@@ -373,10 +373,10 @@ The `build` directive supports both relative and absolute paths:
 
 ```solidity
 // ✅ Relative to contract file (recommended)
-/// !interface build ../interfaces/IMyContract.sol
+/// @custom:interface build ../interfaces/IMyContract.sol
 
 // ✅ Absolute path
-/// !interface build /path/to/interfaces/IMyContract.sol
+/// @custom:interface build /path/to/interfaces/IMyContract.sol
 ```
 
 ## Function Inclusion Rules

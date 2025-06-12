@@ -301,7 +301,7 @@ OPTIONS:
   --force             Force regeneration of interface files even if they are up to date
 
 WHAT IT DOES:
-  1. 🔧 Builds all interfaces with /// !interface directives (FIRST)
+  1. 🔧 Builds all interfaces with /// @custom:interface directives (FIRST)
   2. 🔨 Runs 'hardhat compile' to generate contract artifacts
   3. 📊 Reports build status and generated outputs
 
@@ -310,26 +310,26 @@ This ensures interfaces are available when Solidity contracts import them.
 INTERFACE DIRECTIVES:
   Add these comments to your contracts to control interface generation:
   
-  /// !interface build "./interfaces/IMyContract.sol"
-  /// !interface build "../interfaces/IMyContract.sol"  # With quotes for paths with spaces
+  /// @custom:interface build "./interfaces/IMyContract.sol"
+  /// @custom:interface build "../interfaces/IMyContract.sol"  # With quotes for paths with spaces
   
 BEST PRACTICES:
   📁 Use the interfaces/ directory with I{ContractName}.sol naming:
-     /// !interface build "./interfaces/IToken.sol"
-     /// !interface build "./interfaces/IStaking.sol"
+     /// @custom:interface build "./interfaces/IToken.sol"
+     /// @custom:interface build "./interfaces/IStaking.sol"
   
   📝 Add to .gitignore to keep repos clean:
      **/interfaces/  # Generated interface files
-  /// !interface module "@openzeppelin/contracts/access/Ownable.sol" to "./interfaces/IOwnable.sol"
-  /// !interface module "@openzeppelin/contracts/access/Ownable.sol" to "./interfaces/IOwnable.sol" --remove Context
-  /// !interface module "contracts/MyModule.sol" to "./interfaces/IMyModule.sol" --replace Ownable with IOwnable --is IAccessControl
-  /// !interface copyright "Copyright 2025 MyCompany"
-  /// !interface import "hardhat/console.sol"
-  /// !interface replace Ownable with IOwnable
-  /// !interface exclude emergencyWithdraw
-  /// !interface include _calculateRewards
-  /// !interface getter stakingBalance
-  /// !interface is IDataStorage, IEventEmitter
+  /// @custom:interface module "@openzeppelin/contracts/access/Ownable.sol" to "./interfaces/IOwnable.sol"
+  /// @custom:interface module "@openzeppelin/contracts/access/Ownable.sol" to "./interfaces/IOwnable.sol" --remove Context
+  /// @custom:interface module "contracts/MyModule.sol" to "./interfaces/IMyModule.sol" --replace Ownable with IOwnable --is IAccessControl
+  /// @custom:interface copyright "Copyright 2025 MyCompany"
+  /// @custom:interface import "hardhat/console.sol"
+  /// @custom:interface replace Ownable with IOwnable
+  /// @custom:interface exclude emergencyWithdraw
+  /// @custom:interface include _calculateRewards
+  /// @custom:interface getter stakingBalance
+  /// @custom:interface is IDataStorage, IEventEmitter
 
 MODULE FLAGS:
   --remove <contract>              Remove inheritance from specified contract
@@ -363,8 +363,9 @@ HARDHAT INTEGRATION:
     npx hardhat build --interfaces --force         # Force interface regeneration
 
 OUTPUTS:
-  • artifacts/     Hardhat compilation artifacts
-  • interfaces/    Generated interface files with natspec
+  • artifacts/         Hardhat compilation artifacts
+  • interfaces/        Generated interface files with natspec
+  • typechain-types/   Typechain contract output
 
 For more information: https://github.com/TechnicallyWeb3/hardhat-build
     `);

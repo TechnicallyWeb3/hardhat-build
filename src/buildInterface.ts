@@ -99,7 +99,7 @@ export class InterfaceGenerator {
 
   private parseDirectives(): void {
     this.lines.forEach((line, index) => {
-      const directiveMatch = line.match(/\/\/\/ !interface\s+(.+)/);
+      const directiveMatch = line.match(/\/\/\/ @custom:interface\s+(.+)/);
       if (directiveMatch) {
         const directiveContent = directiveMatch[1].trim();
         const directive = this.parseDirectiveContent(directiveContent);
@@ -230,7 +230,7 @@ export class InterfaceGenerator {
       const line = this.lines[currentLine].trim();
       
       // Skip interface directives
-      if (line.startsWith('/// !interface')) {
+      if (line.startsWith('/// @custom:interface')) {
         currentLine--;
         continue;
       }
@@ -527,7 +527,7 @@ export class InterfaceGenerator {
 
   public generateInterface(): string {
     if (!this.buildPath) {
-      throw new Error('No build directive found. Use /// !interface build <path>');
+      throw new Error('No build directive found. Use /// @custom:interface build <path>');
     }
 
     const functions = this.parseFunctions();
@@ -783,11 +783,12 @@ export class InterfaceGenerator {
     console.log(`📦 Module interface generated: ${modulePath} -> ${resolvedOutputPath}`);
   }
 
-  private parseModuleFlags(flags: string): {remove: string[], replace: Map<string, string>, is: string[]} {
+  private parseModuleFlags(flags: string): {remove: string[], replace: Map<string, string>, is: string[], import: string[]} {
     const result = {
       remove: [] as string[],
       replace: new Map<string, string>(),
-      is: [] as string[]
+      is: [] as string[],
+      import: [] as string[]
     };
 
     if (!flags) return result;
@@ -821,10 +822,22 @@ export class InterfaceGenerator {
       result.is = isContent.split(/\s*,\s*/).map(s => s.trim()).filter(s => s);
     }
 
+    // Parse --import flags (support quoted or unquoted paths)
+    const importMatches = flags.match(/--import\s+(?:"([^"]+)"|(\S+))(?:\s|$)/g);
+    if (importMatches) {
+      importMatches.forEach(match => {
+        const importMatch = match.match(/--import\s+(?:"([^"]+)"|(\S+))/);
+        if (importMatch) {
+          const importPath = importMatch[1] || importMatch[2];
+          result.import.push(importPath);
+        }
+      });
+    }
+
     return result;
   }
 
-  private applyModuleFlags(generator: InterfaceGenerator, moduleFlags: {remove: string[], replace: Map<string, string>, is: string[]}): void {
+  private applyModuleFlags(generator: InterfaceGenerator, moduleFlags: {remove: string[], replace: Map<string, string>, is: string[], import: string[]}): void {
     // Apply remove flags
     moduleFlags.remove.forEach(item => {
       generator.removeDirectives.add(item);
@@ -838,6 +851,13 @@ export class InterfaceGenerator {
     // Apply is flags
     moduleFlags.is.forEach(item => {
       generator.isDirectives.push(item);
+    });
+
+    // Apply import flags
+    moduleFlags.import.forEach(imp => {
+      if (!generator.importDirectives.includes(imp)) {
+        generator.importDirectives.push(imp);
+      }
     });
   }
 }
@@ -857,7 +877,7 @@ export async function findContractsWithBuildDirectives(directory: string = './co
         findSolFiles(fullPath);
       } else if (item.endsWith('.sol')) {
         const content = fs.readFileSync(fullPath, 'utf8');
-        if (content.includes('/// !interface build')) {
+        if (content.includes('/// @custom:interface build')) {
           contractFiles.push(fullPath);
         }
       }
@@ -875,7 +895,7 @@ function countTotalInterfaces(contractFiles: string[]): number {
   // Add module directives count
   contractFiles.forEach(contractFile => {
     const content = fs.readFileSync(contractFile, 'utf8');
-    const moduleMatches = content.match(/\/\/\/ !interface module .+/g);
+    const moduleMatches = content.match(/\/\/\/ @custom:interface module .+/g);
     if (moduleMatches) {
       totalInterfaces += moduleMatches.length;
     }
@@ -892,7 +912,7 @@ export async function buildAllInterfaces(force: boolean = false): Promise<void> 
   
   if (contractFiles.length === 0) {
     console.log('❌ No contracts found with build directives.');
-    console.log('   Add /// !interface build <path> to contracts you want to generate interfaces for.');
+    console.log('   Add /// @custom:interface build <path> to contracts you want to generate interfaces for.');
     return;
   }
   

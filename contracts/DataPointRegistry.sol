@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/// !interface copyright "Copyright (C) 2025 TechnicallyWeb3"
+/// @custom:interface copyright "Copyright (C) 2025 TechnicallyWeb3"
 /// !interface build ./interfaces/IDataPointRegistry.sol
 
 // SPDX-License-Identifier: AGPL-3.0-only
@@ -24,20 +24,20 @@ pragma solidity ^0.8.20;
 
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-/// !interface import "./IOwnable.sol"
+/// @custom:interface import "./IOwnable.sol"
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "./interfaces/ESPTypes.sol";
-/// !interface import "./ESPTypes.sol"
-import "./interfaces/IDataPointStorage.sol";
-/// !interface import "./IDataPointStorage.sol"
+import "@tw3/esp/contracts/types/ESPTypes.sol";
+/// @custom:interface import "@tw3/esp/contracts/types/ESPTypes.sol"
+import "@tw3/esp/contracts/interfaces/IDataPointStorage.sol";
+/// @custom:interface import "@tw3/esp/contracts/interfaces/IDataPointStorage.sol"
 
 /// @title Data Point Registry Contract
 /// @notice Manages data point publishing and royalty payments
 /// @dev Extends storage functionality with economic incentives
 /// @custom:security ESP_FINGERPRINT_TW3_2025_DPR_v2
 contract DataPointRegistry is Ownable, ReentrancyGuard {
-    /// !interface replace Ownable with IOwnable
-    /// !interface remove ReentrancyGuard
+    /// @custom:interface replace Ownable with IOwnable
+    /// @custom:interface remove ReentrancyGuard
 
     IDataPointStorage internal DPS_;
 

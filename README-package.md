@@ -36,7 +36,7 @@ require('hardhat-build');
 
 ```bash
 # Add interface directive to your contract
-/// !interface build ../interfaces/IMyContract.sol
+/// @custom:interface build ../interfaces/IMyContract.sol
 
 # Generate interfaces
 npx hardhat build --interfaces
@@ -70,38 +70,38 @@ Control interface generation with special comments in your contracts:
 
 #### `build` - Specify Output Path
 ```solidity
-/// !interface build ../interfaces/IMyContract.sol
+/// @custom:interface build ../interfaces/IMyContract.sol
 ```
 
 ### Optional Directives
 
 #### `copyright` - Add Copyright Notice
 ```solidity
-/// !interface copyright "Copyright (c) 2024 MyCompany. All rights reserved."
+/// @custom:interface copyright "Copyright (c) 2024 MyCompany. All rights reserved."
 ```
 
 #### `import` - Add Import Statements
 ```solidity
-/// !interface import "@openzeppelin/contracts/access/IOwnable.sol";
+/// @custom:interface import "@openzeppelin/contracts/access/IOwnable.sol";
 ```
 
 #### `replace` - Replace Inheritance
 ```solidity
 contract MyContract is Ownable {
-/// !interface replace Ownable with IOwnable
+/// @custom:interface replace Ownable with IOwnable
 ```
 
 #### `remove` - Remove Inheritance
 ```solidity
 contract MyContract is Ownable, ReentrancyGuard {
-/// !interface remove ReentrancyGuard
+/// @custom:interface remove ReentrancyGuard
 ```
 
 #### `is` - Add Interface Inheritance
 ```solidity
 contract MyContract is Ownable {
-/// !interface is IDataStorage
-/// !interface is IEventEmitter
+/// @custom:interface is IDataStorage
+/// @custom:interface is IEventEmitter
 // Results in: interface IMyContract is IOwnable, IDataStorage, IEventEmitter
 ```
 
@@ -110,7 +110,7 @@ contract MyContract is Ownable {
 function debugFunction() public {
     // implementation
 }
-/// !interface exclude debugFunction
+/// @custom:interface exclude debugFunction
 ```
 
 #### `include` - Force Include Internal Functions
@@ -118,7 +118,7 @@ function debugFunction() public {
 function _internalHelper() internal view returns (uint256) {
     return someValue;
 }
-/// !interface include _internalHelper
+/// @custom:interface include _internalHelper
 ```
 
 ## Hardhat Tasks
@@ -167,10 +167,10 @@ The `build` directive supports both relative and absolute paths:
 
 ```solidity
 // ✅ Relative to contract file (recommended)
-/// !interface build ../interfaces/IMyContract.sol
+/// @custom:interface build ../interfaces/IMyContract.sol
 
 // ✅ Absolute path
-/// !interface build /path/to/interfaces/IMyContract.sol
+/// @custom:interface build /path/to/interfaces/IMyContract.sol
 ```
 
 ## Function Inclusion Rules

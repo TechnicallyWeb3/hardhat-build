@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-/// !interface build ../interfaces/IComprehensiveExample.sol
-/// !interface copyright "Copyright (c) 2024 TechnicallyWeb3. All rights reserved."
-/// !interface import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-/// !interface import "@openzeppelin/contracts/access/IOwnable.sol";
+/// @custom:interface build ../interfaces/IComprehensiveExample.sol
+/// @custom:interface copyright "Copyright (c) 2024 TechnicallyWeb3. All rights reserved."
+/// @custom:interface import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+/// @custom:interface import "@openzeppelin/contracts/access/IOwnable.sol";
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -17,10 +17,10 @@ import "@openzeppelin/contracts/utils/Pausable.sol";
 /// @custom:version 2.1.0
 /// @custom:experimental This contract is for demonstration purposes
 contract ComprehensiveExample is ERC20, Ownable, ReentrancyGuard, Pausable {
-/// !interface replace ERC20 with IERC20
-/// !interface replace Ownable with IOwnable  
-/// !interface remove ReentrancyGuard
-/// !interface remove Pausable
+/// @custom:interface replace ERC20 with IERC20
+/// @custom:interface replace Ownable with IOwnable  
+/// @custom:interface remove ReentrancyGuard
+/// @custom:interface remove Pausable
 
     /// @notice The maximum supply of tokens that can ever exist
     uint256 public constant MAX_SUPPLY = 1_000_000 * 10**18;
@@ -36,11 +36,11 @@ contract ComprehensiveExample is ERC20, Ownable, ReentrancyGuard, Pausable {
     
     /// @notice Total fees collected by the contract
     uint256 internal totalFeesCollected;
-    /// !interface getter totalFeesCollected
+    /// @custom:interface getter totalFeesCollected
     
     /// @notice Tracks if automatic fee collection is enabled
     bool private autoFeeCollection;
-    /// !interface getter autoFeeCollection
+    /// @custom:interface getter autoFeeCollection
 
     /// @notice Information about a user's staking position
     /// @param amount The amount of tokens staked
@@ -88,13 +88,13 @@ contract ComprehensiveExample is ERC20, Ownable, ReentrancyGuard, Pausable {
     /// @param calculation The calculation result
     /// @param gasUsed Gas used in the calculation
     event DebugCalculation(address indexed user, uint256 calculation, uint256 gasUsed);
-    /// !interface exclude DebugCalculation
+    /// @custom:interface exclude DebugCalculation
 
     /// @notice Emitted during development for testing (excluded from interface)
     /// @param message Debug message
     /// @param value Associated value
     event DevelopmentLog(string message, uint256 value);
-    /// !interface exclude DevelopmentLog
+    /// @custom:interface exclude DevelopmentLog
 
     /// @notice Thrown when attempting to purchase zero tokens
     error ZeroPurchaseAmount();
@@ -403,7 +403,7 @@ contract ComprehensiveExample is ERC20, Ownable, ReentrancyGuard, Pausable {
         if (amount >= 100 * 10**18) return 125;    // 1.25x for small stakes
         return 100; // 1x base multiplier
     }
-    /// !interface include _calculateStakingMultiplier
+    /// @custom:interface include _calculateStakingMultiplier
 
     /// @notice Internal helper to calculate pending rewards for a user
     /// @param user The user address
@@ -431,7 +431,7 @@ contract ComprehensiveExample is ERC20, Ownable, ReentrancyGuard, Pausable {
         _pause();
         emit DevelopmentLog("Contract paused", block.timestamp);
     }
-    /// !interface exclude emergencyPause
+    /// @custom:interface exclude emergencyPause
 
     /// @notice Emergency function to unpause the contract (owner only, excluded from interface)
     /// @dev This function is for emergency use only and excluded from the interface
@@ -439,7 +439,7 @@ contract ComprehensiveExample is ERC20, Ownable, ReentrancyGuard, Pausable {
         _unpause();
         emit DevelopmentLog("Contract unpaused", block.timestamp);
     }
-    /// !interface exclude emergencyUnpause
+    /// @custom:interface exclude emergencyUnpause
 
     /// @notice Emergency withdrawal function (owner only, excluded from interface)
     /// @param token The token contract to withdraw from
@@ -447,7 +447,7 @@ contract ComprehensiveExample is ERC20, Ownable, ReentrancyGuard, Pausable {
     function emergencyWithdraw(IERC20 token, uint256 amount) external onlyOwner {
         token.transfer(owner(), amount);
     }
-    /// !interface exclude emergencyWithdraw
+    /// @custom:interface exclude emergencyWithdraw
 
     /// @notice Override transfer to include fee mechanism
     function _update(address from, address to, uint256 value) internal override {

@@ -11,15 +11,15 @@
 The plugin introduces a novel comment-based directive system that allows developers to control interface generation through embedded contract comments:
 
 ```solidity
-/// !interface build ../interfaces/IMyContract.sol
-/// !interface copyright "Copyright 2025 MyCompany"
-/// !interface import "hardhat/console.sol";
-/// !interface replace Ownable with IOwnable
-/// !interface is IDataStorage
-/// !interface is IEventEmitter
-/// !interface exclude emergencyWithdraw
-/// !interface include _calculateRewards
-/// !interface getter stakingBalance
+/// @custom:interface build ../interfaces/IMyContract.sol
+/// @custom:interface copyright "Copyright 2025 MyCompany"
+/// @custom:interface import "hardhat/console.sol";
+/// @custom:interface replace Ownable with IOwnable
+/// @custom:interface is IDataStorage
+/// @custom:interface is IEventEmitter
+/// @custom:interface exclude emergencyWithdraw
+/// @custom:interface include _calculateRewards
+/// @custom:interface getter stakingBalance
 contract MyContract {
     // contract implementation
 }

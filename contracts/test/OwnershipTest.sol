@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-/// !interface module "@openzeppelin/contracts/access/Ownable.sol" to "./interfaces/IOwnable.sol" --remove Context
-/// !interface build "./interfaces/IOwnershipTest.sol"
-/// !interface replace Ownable with IOwnable
+/// @custom:interface module "@openzeppelin/contracts/access/Ownable.sol" to "./interfaces/IOwnable.sol" --remove Context
+/// @custom:interface build "./interfaces/IOwnershipTest.sol"
+/// @custom:interface replace Ownable with IOwnable
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-/// !interface import "./IOwnable.sol"
+/// @custom:interface import "./IOwnable.sol"
 
 /// @title Ownership Test Contract
 /// @notice Test contract to verify module directive functionality
@@ -31,7 +31,7 @@ contract OwnershipTest is Ownable {
         return ownable.owner();
     }
 
-    function getOwnableContract(address _ownableContract) external view returns (Ownable) {
+    function getOwnableContract(address _ownableContract) external pure returns (Ownable) {
         return Ownable(_ownableContract);
     }
 } 

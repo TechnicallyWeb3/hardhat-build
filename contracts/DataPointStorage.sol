@@ -16,14 +16,14 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/// !interface copyright "Copyright (C) 2025 TechnicallyWeb3"
+/// @custom:interface copyright "Copyright (C) 2025 TechnicallyWeb3"
 /// !interface build ./interfaces/IDataPointStorage.sol
 
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.20;
 
-import "./interfaces/ESPTypes.sol";
-/// !interface import "./ESPTypes.sol"
+import "@tw3/esp/contracts/types/ESPTypes.sol";
+/// @custom:interface import "@tw3/esp/contracts/types/ESPTypes.sol"
 
 /// @title Data Point Storage Contract
 /// @notice Provides core storage functionality for data points
@@ -33,7 +33,7 @@ contract DataPointStorage {
 
     mapping(bytes32 => bytes) private dataPointData;
     uint8 public immutable VERSION = 2;
-    /// !interface getter VERSION
+    /// @custom:interface getter VERSION
 
     /// @notice Calculates the storage address for a data point
     /// @param _data The data point to calculate address for

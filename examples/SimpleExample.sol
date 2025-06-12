@@ -1,5 +1,5 @@
-/// !interface copyright Copyright (C) 2025 TechnicallyWeb3
-/// !interface build ./interfaces/ISimpleExample.sol
+/// @custom:interface copyright Copyright (C) 2025 TechnicallyWeb3
+/// @custom:interface build ./interfaces/ISimpleExample.sol
 
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
@@ -8,8 +8,8 @@ pragma solidity ^0.8.20;
 /// @notice A contract with no inheritance but uses is directive
 /// @dev Testing 'is' directive with no original inheritance
 contract SimpleExample {
-    /// !interface is ISomeContract
-    /// !interface is IAnotherInterface
+    /// @custom:interface is ISomeContract
+    /// @custom:interface is IAnotherInterface
 
     /// @notice Simple storage value
     uint256 public value;

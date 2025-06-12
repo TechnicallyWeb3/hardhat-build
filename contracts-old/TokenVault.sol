@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-/// !interface build ../interfaces/ITokenVault.sol
-/// !interface copyright "Copyright (c) 2024 TechnicallyWeb3. All rights reserved."
-/// !interface import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-/// !interface import "@openzeppelin/contracts/access/IAccessControl.sol";
+/// @custom:interface build ../interfaces/ITokenVault.sol
+/// @custom:interface copyright "Copyright (c) 2024 TechnicallyWeb3. All rights reserved."
+/// @custom:interface import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+/// @custom:interface import "@openzeppelin/contracts/access/IAccessControl.sol";
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -15,9 +15,9 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 /// @dev Implements staking mechanics with time-based rewards and access control
 /// @custom:version 1.0.0
 contract TokenVault is ERC20, Ownable, ReentrancyGuard {
-/// !interface replace ERC20 with IERC20
-/// !interface replace Ownable with IAccessControl
-/// !interface remove ReentrancyGuard
+/// @custom:interface replace ERC20 with IERC20
+/// @custom:interface replace Ownable with IAccessControl
+/// @custom:interface remove ReentrancyGuard
 
     /// @notice The staking token accepted by this vault
     IERC20 public stakingToken;
@@ -76,7 +76,7 @@ contract TokenVault is ERC20, Ownable, ReentrancyGuard {
     /// @param user The user address
     /// @param calculation The calculation result
     event DebugCalculation(address indexed user, uint256 calculation);
-    /// !interface exclude DebugCalculation
+    /// @custom:interface exclude DebugCalculation
 
     /// @notice Thrown when trying to stake zero tokens
     error ZeroStakeAmount();
@@ -283,7 +283,7 @@ contract TokenVault is ERC20, Ownable, ReentrancyGuard {
         if (stakeDuration >= 30 days) return 110;  // 1.1x for 1+ month stakes
         return 100; // 1x for shorter stakes
     }
-    /// !interface include _calculateRewardMultiplier
+    /// @custom:interface include _calculateRewardMultiplier
 
     /// @notice Internal helper to update pending rewards for a user
     /// @param user The user address to update
@@ -314,5 +314,5 @@ contract TokenVault is ERC20, Ownable, ReentrancyGuard {
     function emergencyWithdraw(IERC20 token, uint256 amount) external onlyOwner {
         token.transfer(owner(), amount);
     }
-    /// !interface exclude emergencyWithdraw
+    /// @custom:interface exclude emergencyWithdraw
 } 

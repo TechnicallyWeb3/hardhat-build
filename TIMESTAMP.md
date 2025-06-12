@@ -16,7 +16,7 @@ This file serves as proof of original publication for the Hardhat Build codebase
 - Multi-format build automation (TypeScript + Hardhat + Interfaces)
 
 ### Innovation Claims:
-1. **Interface Directive System**: Novel comment-based interface generation directives (`/// !interface build`, `/// !interface replace`, etc.) that allow developers to control interface generation through embedded contract comments
+1. **Interface Directive System**: Novel comment-based interface generation directives (`/// @custom:interface build`, `/// @custom:interface replace`, etc.) that allow developers to control interface generation through embedded contract comments
 2. **Natspec Preservation Algorithm**: Advanced parsing system that maintains both `///` and `/** */` style natspec documentation during interface generation
 3. **Comprehensive Build Pipeline**: Unified CLI that handles Hardhat artifact generation and interface building in a single command with smart package manager detection
 

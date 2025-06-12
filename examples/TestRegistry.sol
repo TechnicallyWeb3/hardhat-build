@@ -1,21 +1,21 @@
-/// !interface copyright Copyright (C) 2025 TechnicallyWeb3
-/// !interface build ./interfaces/ITestRegistry.sol
+/// @custom:interface copyright Copyright (C) 2025 TechnicallyWeb3
+/// @custom:interface build ./interfaces/ITestRegistry.sol
 
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-/// !interface import "@openzeppelin/contracts/access/IOwnable.sol"
+/// @custom:interface import "@openzeppelin/contracts/access/IOwnable.sol"
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /// @title Test Registry Contract
 /// @notice Simple test contract to verify the 'is' directive functionality
 /// @dev Testing interface inheritance directive processing
 contract TestRegistry is Ownable, ReentrancyGuard {
-    /// !interface replace Ownable with IOwnable
-    /// !interface is IDataStorage
-    /// !interface is IEventEmitter
-    /// !interface remove ReentrancyGuard
+    /// @custom:interface replace Ownable with IOwnable
+    /// @custom:interface is IDataStorage
+    /// @custom:interface is IEventEmitter
+    /// @custom:interface remove ReentrancyGuard
 
     /// @notice Registry of data entries
     mapping(address => string) public dataRegistry;
